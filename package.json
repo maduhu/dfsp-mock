@@ -1,0 +1,46 @@
+{
+  "name": "@leveloneproject/dfsp-mock",
+  "version": "0.0.1",
+  "description": "DFPS mock",
+  "main": "index.js",
+  "scripts": {
+    "changelog": "ut-changelog",
+    "check": "ut-check",
+    "cover": "ut-cover",
+    "gitlab": "ut-gitlab",
+    "jenkins": "ut-jenkins",
+    "lint": "ut-lint .",
+    "lint-js": "ut-lint-js .",
+    "pm2": "pm2 start pm2.json",
+    "pm2-show": "pm2 show",
+    "pm2-stop": "pm2 stop pm2.json",
+    "postpublish": "ut-postpublish",
+    "postversion": "ut-postversion",
+    "precommit": "ut-precommit",
+    "prepublish": "ut-prepublish",
+    "prepush": "ut-prepush",
+    "pretest": "ut-pretest",
+    "preversion": "ut-preversion",
+    "release": "ut-release",
+    "start": "node .",
+    "test": "ut-test",
+    "version": "ut-version"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:LevelOneProject/dfsp-mock.git"
+  },
+  "engines": {
+    "node": ">=4.4.7",
+    "npm": ">=3.10.6"
+  },
+  "publishConfig": {
+    "registry": "https://modusbox.jfrog.io/modusbox/api/npm/level1-npm-release"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "hapi": "^15.1.1",
+    "joi": "^9.1.1"
+  }
+}
