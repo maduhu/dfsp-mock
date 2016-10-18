@@ -31,6 +31,31 @@ function directoryFailActionHandler (request, reply, source, error) {
 server.route([
   {
     path: '/directory/user/get',
+    method: 'get',
+    handler: (request, reply) => {
+      return reply({
+        'name': 'Chris Griffin',
+        'account': 'http://receivingdfsp.com/griffin_12345',
+        'currency': 'USD'
+      })
+    },
+    config: {
+      validate: {
+        query: joi.object({
+          uri: joi.string().valid('http://centraldirectory.com/griffin').required()
+        }),
+        failAction: (request, reply, source, error) => {
+          return reply({
+            'error': {
+              'message': 'Account not found for userURI=' + request.query.uri
+            }
+          })
+        }
+      }
+    }
+  },
+  {
+    path: '/directory/user/get',
     method: 'post',
     handler: (request, reply) => {
       if (request.payload.params.userURI !== 'http://centraldirectory.com/griffin') {
