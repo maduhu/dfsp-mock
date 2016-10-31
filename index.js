@@ -58,7 +58,7 @@ server.route([
     path: '/directory/user/get',
     method: 'post',
     handler: (request, reply) => {
-      if (request.payload.params.userURI !== 'http://centraldirectory.com/griffin') {
+      if (request.payload.params.userURI === 'number:fail') {
         return reply({
           'error': {
             'message': 'Account not found for userURI=' + request.payload.params.userURI
@@ -70,7 +70,7 @@ server.route([
         'id': request.payload.id,
         'result': {
           'name': 'Chris Griffin',
-          'account': 'http://receivingdfsp.com/griffin_12345',
+          'account': 'http://receivingdfsp.com/' + request.payload.params.userURI.split(':').pop(),
           'currency': 'USD'
         }
       })
@@ -122,7 +122,7 @@ server.route([
     method: 'get',
     handler: (request, reply) => {
       var receiver = request.query.receiver.split('/').pop()
-      if (['alice', 'bob'].indexOf(receiver) === -1) {
+      if (receiver === 'fail') {
         return reply({
           'id': 'Error',
           'message': 'Error getting receiver details, receiver responded with: undefined getaddrinfo ENOTFOUND ' + receiver + ' ' + receiver + ':80',
@@ -200,7 +200,7 @@ server.route([
     method: 'post',
     handler: (request, reply) => {
       var receiver = request.payload.receiver.split('/').pop()
-      if (['alice', 'bob'].indexOf(receiver) === -1) {
+      if (receiver === 'fail') {
         return reply({
           'id': 'Error',
           'message': 'Error getting receiver details, receiver responded with: 500 Internal Server Error',
@@ -226,7 +226,7 @@ server.route([
           'receiver': joi.string().required(),
           'sourceAccount': joi.string().required(),
           'destinationAmount': joi.string().required(),
-          'memo': joi.string().required(),
+          'memo': joi.string().allow(''),
           'sourceIdentifier': joi.string().required()
         }),
         failAction: directoryFailActionHandler
@@ -238,7 +238,7 @@ server.route([
     method: 'put',
     handler: (request, reply) => {
       var receiver = request.payload.receiver.split('/').pop()
-      if (['alice', 'bob'].indexOf(receiver) === -1) {
+      if (receiver === 'fail') {
         return reply({
           'id': 'Error',
           'message': 'Error getting receiver details, receiver responded with: 500 Internal Server Error',
@@ -266,7 +266,7 @@ server.route([
           'sourceAmount': joi.string().required(),
           'destinationAmount': joi.string().required(),
           'address': joi.string().required(),
-          'memo': joi.string(),
+          'memo': joi.string().allow(''),
           'expiresAt': joi.string().required(),
           'condition': joi.string().required(),
           'sourceAccount': joi.string().required()
