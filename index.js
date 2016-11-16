@@ -36,7 +36,9 @@ server.route([
       return reply({
         'name': 'Chris Griffin',
         'account': 'http://receivingdfsp.com/griffin_12345',
-        'currency': 'USD'
+        'currency': 'USD',
+        // Should be implemented by modusBox to return the DFSP address too
+        'dfsp': 'http://localhost:8010'
       })
     },
     config: {
@@ -71,7 +73,9 @@ server.route([
         'result': {
           'name': 'Chris Griffin',
           'account': 'http://receivingdfsp.com/' + request.payload.params.userURI.split(':').pop(),
-          'currency': 'USD'
+          'currency': 'USD',
+          // Should be implemented by modusBox to return the DFSP address too
+          'dfsp': 'http://localhost:8010'
         }
       })
     },
