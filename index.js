@@ -1,6 +1,6 @@
 const hapi = require('hapi')
 const joi = require('joi')
-
+/*eslint no-console:0 */
 const server = new hapi.Server()
 server.connection({ port: 8021 })
 
@@ -281,4 +281,11 @@ server.start((err) => {
   if (err) {
     throw err
   }
+})
+
+module.exports = Promise.resolve({
+ stop: function() {
+   server.stop()
+   return Promise.resolve()
+ }
 })
