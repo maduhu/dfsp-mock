@@ -42,5 +42,9 @@
   "dependencies": {
     "hapi": "^15.1.1",
     "joi": "^9.1.1"
+  },
+  "devDependencies": {
+    "ut-tools": "^5.10.7",
+    "tap-xunit": "1.4.0"
   }
 }

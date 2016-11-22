@@ -8,3 +8,4 @@ cache
 *.sublime-*
 dist
 tmp
+.npmrc
