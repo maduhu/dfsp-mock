@@ -29,26 +29,23 @@ function directoryFailActionHandler (request, reply, source, error) {
 
 server.route([
   {
-    path: '/directory/user/get',
+    path: '/resources',
     method: 'get',
     handler: (request, reply) => {
       return reply({
-        'name': 'Chris Griffin',
-        'account': 'http://receivingdfsp.com/griffin_12345',
-        'currency': 'USD',
-        // Should be implemented by modusBox to return the DFSP address too
-        'dfsp': 'http://localhost:8010'
+        spspReceiver: 'http://localhost:8010'
       })
     },
     config: {
       validate: {
-        query: joi.object({
-          uri: joi.string().valid('http://centraldirectory.com/griffin').required()
+        query: joi.object().keys({
+          identifier: joi.string().required(),
+          identifierType: joi.string().required()
         }),
         failAction: (request, reply, source, error) => {
           return reply({
             'error': {
-              'message': 'Account not found for userURI=' + request.query.uri
+              'message': 'Bad request'
             }
           })
         }
@@ -93,28 +90,18 @@ server.route([
     }
   },
   {
-    path: '/directory/user/add',
+    path: '/user-registration/users',
     method: 'post',
     handler: (request, reply) => {
       return reply({
-        'jsonrpc': '2.0',
-        'id': 'b207c574-4d6b-4a64-9740-b0cac7de7c54',
-        'result': {
-          'message': 'Updated ' + request.payload.users.length + ' entities based on request'
-        }
+        url: request.payload.url,
+        number: '' + (Math.floor(Math.random() * 90000000) + 10000000)
       })
     },
     config: {
       validate: {
-        payload: joi.object({
-          'users': joi.array().items(
-            joi.object({
-              'uri': joi.string().required(),
-              'name': joi.string().required(),
-              'account': joi.string().required(),
-              'currency': joi.string().required()
-            })
-          )
+        payload: joi.object().keys({
+          url: joi.string().uri().required()
         }),
         failAction: directoryFailActionHandler
       }
