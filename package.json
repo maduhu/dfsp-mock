@@ -44,7 +44,7 @@
     "joi": "^9.1.1"
   },
   "devDependencies": {
-    "ut-tools": "^5.10.7",
+    "ut-tools": "^5.10.8",
     "tap-xunit": "1.4.0"
   }
 }
