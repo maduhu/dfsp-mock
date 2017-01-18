@@ -41,7 +41,9 @@
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
     "hapi": "^15.1.1",
-    "joi": "^9.1.1"
+    "joi": "^9.1.1",
+    "request": "^2.79.0",
+    "uuid4": "^1.0.0"
   },
   "devDependencies": {
     "ut-tools": "^5.10.8",

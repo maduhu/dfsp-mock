@@ -1,6 +1,8 @@
 const hapi = require('hapi')
 const joi = require('joi')
 const server = new hapi.Server()
+const request = require('request');
+const uuid = require('uuid4')
 server.connection({ port: 8021 })
 
 function directoryFailActionHandler (request, reply, source, error) {
@@ -123,7 +125,7 @@ server.route([
         'currencyCode': 'USD',
         'imageUrl': 'http://mediaserver.com/demo/images/' + receiver + '-profile-pic.jpg',
         'currencySymbol': '$',
-        'name': receiver + ' Taylor',
+        'name': receiver,
         'type': 'payee',
         'address': 'levelone.dfsp2.' + receiver
       })
@@ -199,14 +201,14 @@ server.route([
       }
       var date = new Date()
       return reply({
-        'id': '9b5b6198-52ab-4c05-a875-72cf7448dc51',
+        'id': uuid(),
         'receiver': request.payload.receiver,
         'sourceAmount': (request.payload.destinationAmount * 1.025).toString(),
         'destinationAmount': request.payload.destinationAmount,
         'address': 'levelone.dfsp2.' + receiver + '.9b5b6198-52ab-4c05-a875-72cf7448dc51',
         'memo': request.payload.memo,
         'expiresAt': date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDay() + 'T' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.199Z',
-        'condition': 'cc:0:3:qLvNojWtv8zQuhJ0XuTVJMl_OBUmFZFJumhvuDxSk44:32',
+        'condition': 'cc:0:3:wey2IMPk-3MsBpbOcObIbtgIMs0f7uBMGwebg1qUeyw:32',
         'sourceAccount': request.payload.sourceAccount
       })
     },
@@ -226,8 +228,8 @@ server.route([
   {
     path: '/spspclient/payments/{paymentId}',
     method: 'put',
-    handler: (request, reply) => {
-      var receiver = request.payload.receiver.split('/').pop()
+    handler: (req, reply) => {
+      var receiver = req.payload.receiver.split('/').pop()
       if (receiver === 'fail') {
         return reply({
           'id': 'Error',
@@ -235,17 +237,51 @@ server.route([
           'debug': {}
         })
       }
-      return reply({
-        'id': request.payload.id,
-        'address': request.payload.address,
-        'destinationAmount': request.payload.destinationAmount,
-        'sourceAmount': request.payload.sourceAmount,
-        'sourceAccount': request.payload.sourceAccount,
-        'expiresAt': request.payload.expiresAt,
-        'additionalHeaders': 'asdf98zxcvlknannasdpfi09qwoijasdfk09xcv009as7zxcv',
-        'condition': request.payload.condition,
-        'fulfillment': 'cf:0:qUAo3BNo49adBtbYTab2L5jAWLpAhnrkNQamsMYjWvM',
-        'status': 'executed'
+      request({
+        url: 'http://localhost:8014/ledger/transfers/' + req.payload.id,
+        method: 'PUT',
+        json: {
+          "id": "http://localhost:8014/ledger/transfers/" + req.payload.id,
+          "ledger": "http://localhost:8014/ledger",
+          "debits": [
+            {
+              "account": req.payload.sourceAccount,
+              "amount": req.payload.destinationAmount,
+              "memo": {},
+              "authorized": true
+            }
+          ],
+          "credits": [
+            {
+              "account": req.payload.receiver,
+              "memo": {},
+              "amount": req.payload.destinationAmount
+            }
+          ],
+          "execution_condition": 'cc:0:3:wey2IMPk-3MsBpbOcObIbtgIMs0f7uBMGwebg1qUeyw:32',
+          "cancellation_condition": null,
+          "expires_at": "2015-06-16T00:00:01.000Z"
+        }
+      }, function(error, message, response) {
+        request({
+            url: 'http://localhost:8014/ledger/transfers/' + req.payload.id + '/fulfillment',
+            method: 'PUT',
+            body: 'cf:0:qUAo3BNo49adBtbYTab2L5jAWLpAhnrkNQamsMYjWvM',
+            headers: {'Content-type': 'text/plain'}
+          }, function(error, message, response) {
+            return reply({
+              'id': req.payload.id,
+              'address': req.payload.address,
+              'destinationAmount': req.payload.destinationAmount,
+              'sourceAmount': req.payload.sourceAmount,
+              'sourceAccount': req.payload.sourceAccount,
+              'expiresAt': req.payload.expiresAt,
+              'additionalHeaders': 'asdf98zxcvlknannasdpfi09qwoijasdfk09xcv009as7zxcv',
+              'condition': req.payload.condition,
+              'fulfillment': 'cf:0:qUAo3BNo49adBtbYTab2L5jAWLpAhnrkNQamsMYjWvM',
+              'status': 'executed'
+            })
+         })
       })
     },
     config: {
