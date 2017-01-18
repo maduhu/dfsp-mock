@@ -1,7 +1,7 @@
 const hapi = require('hapi')
 const joi = require('joi')
 const server = new hapi.Server()
-const request = require('request');
+const request = require('request')
 const uuid = require('uuid4')
 server.connection({ port: 8021 })
 
@@ -241,47 +241,61 @@ server.route([
         url: 'http://localhost:8014/ledger/transfers/' + req.payload.id,
         method: 'PUT',
         json: {
-          "id": "http://localhost:8014/ledger/transfers/" + req.payload.id,
-          "ledger": "http://localhost:8014/ledger",
-          "debits": [
+          'id': 'http://localhost:8014/ledger/transfers/' + req.payload.id,
+          'ledger': 'http://localhost:8014/ledger',
+          'debits': [
             {
-              "account": req.payload.sourceAccount,
-              "amount": req.payload.destinationAmount,
-              "memo": {},
-              "authorized": true
+              'account': req.payload.sourceAccount,
+              'amount': req.payload.destinationAmount,
+              'memo': {},
+              'authorized': true
             }
           ],
-          "credits": [
+          'credits': [
             {
-              "account": req.payload.receiver,
-              "memo": {},
-              "amount": req.payload.destinationAmount
+              'account': req.payload.receiver,
+              'memo': {},
+              'amount': req.payload.destinationAmount
             }
           ],
-          "execution_condition": 'cc:0:3:wey2IMPk-3MsBpbOcObIbtgIMs0f7uBMGwebg1qUeyw:32',
-          "cancellation_condition": null,
-          "expires_at": "2015-06-16T00:00:01.000Z"
+          'execution_condition': 'cc:0:3:wey2IMPk-3MsBpbOcObIbtgIMs0f7uBMGwebg1qUeyw:32',
+          'cancellation_condition': null,
+          'expires_at': '2015-06-16T00:00:01.000Z'
         }
-      }, function(error, message, response) {
+      }, function (error, message, response) {
+        if (error) {
+          return reply({
+            'error': {
+              'message': error
+            }
+          })
+        }
         request({
-            url: 'http://localhost:8014/ledger/transfers/' + req.payload.id + '/fulfillment',
-            method: 'PUT',
-            body: 'cf:0:qUAo3BNo49adBtbYTab2L5jAWLpAhnrkNQamsMYjWvM',
-            headers: {'Content-type': 'text/plain'}
-          }, function(error, message, response) {
+          url: 'http://localhost:8014/ledger/transfers/' + req.payload.id + '/fulfillment',
+          method: 'PUT',
+          body: 'cf:0:qUAo3BNo49adBtbYTab2L5jAWLpAhnrkNQamsMYjWvM',
+          headers: {'Content-type': 'text/plain'}
+        }, function (error, message, response) {
+          if (error) {
             return reply({
-              'id': req.payload.id,
-              'address': req.payload.address,
-              'destinationAmount': req.payload.destinationAmount,
-              'sourceAmount': req.payload.sourceAmount,
-              'sourceAccount': req.payload.sourceAccount,
-              'expiresAt': req.payload.expiresAt,
-              'additionalHeaders': 'asdf98zxcvlknannasdpfi09qwoijasdfk09xcv009as7zxcv',
-              'condition': req.payload.condition,
-              'fulfillment': 'cf:0:qUAo3BNo49adBtbYTab2L5jAWLpAhnrkNQamsMYjWvM',
-              'status': 'executed'
+              'error': {
+                'message': error
+              }
             })
-         })
+          }
+          return reply({
+            'id': req.payload.id,
+            'address': req.payload.address,
+            'destinationAmount': req.payload.destinationAmount,
+            'sourceAmount': req.payload.sourceAmount,
+            'sourceAccount': req.payload.sourceAccount,
+            'expiresAt': req.payload.expiresAt,
+            'additionalHeaders': 'asdf98zxcvlknannasdpfi09qwoijasdfk09xcv009as7zxcv',
+            'condition': req.payload.condition,
+            'fulfillment': 'cf:0:qUAo3BNo49adBtbYTab2L5jAWLpAhnrkNQamsMYjWvM',
+            'status': 'executed'
+          })
+        })
       })
     },
     config: {
