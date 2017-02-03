@@ -127,7 +127,8 @@ server.route([
         'currencySymbol': '$',
         'name': receiver,
         'type': 'payee',
-        'address': 'levelone.dfsp2.' + receiver
+        'address': 'levelone.dfsp2.' + receiver,
+        'amount': '13'
       })
     }
   },
