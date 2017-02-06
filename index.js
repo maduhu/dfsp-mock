@@ -128,7 +128,9 @@ server.route([
         'name': receiver,
         'type': 'payee',
         'address': 'levelone.dfsp2.' + receiver,
-        'amount': '13'
+        'amount': '13',
+        'firstName': 'First Name',
+        'lastName': 'Last Name'
       })
     }
   },
