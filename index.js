@@ -130,7 +130,8 @@ server.route([
         'address': 'levelone.dfsp2.' + receiver,
         'amount': '13',
         'firstName': 'First Name',
-        'lastName': 'Last Name'
+        'lastName': 'Last Name',
+        'account': {}
       })
     }
   },
@@ -206,7 +207,7 @@ server.route([
       return reply({
         'id': uuid(),
         'receiver': request.payload.receiver,
-        'sourceAmount': (request.payload.destinationAmount * 1.025).toString(),
+        'sourceAmount': request.payload.sourceAmount,
         'destinationAmount': request.payload.destinationAmount,
         'address': 'levelone.dfsp2.' + receiver + '.9b5b6198-52ab-4c05-a875-72cf7448dc51',
         'memo': request.payload.memo,
@@ -222,7 +223,8 @@ server.route([
           'sourceAccount': joi.string().required(),
           'destinationAmount': joi.string().required(),
           'memo': joi.string().allow(''),
-          'sourceIdentifier': joi.string().required()
+          'sourceIdentifier': joi.string().required(),
+          'sourceAmount': joi.string().required()
         }),
         failAction: directoryFailActionHandler
       }
