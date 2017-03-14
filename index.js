@@ -224,7 +224,7 @@ server.route([
           'destinationAmount': joi.string().required(),
           'memo': joi.string().allow(''),
           'sourceIdentifier': joi.string().required(),
-          'sourceAmount': joi.string().required()
+          'sourceAmount': joi.string()
         }),
         failAction: directoryFailActionHandler
       }
