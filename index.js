@@ -34,9 +34,22 @@ server.route([
     path: '/resources',
     method: 'get',
     handler: (request, reply) => {
-      return reply({
-        spspReceiver: 'http://localhost:8010'
-      })
+      return reply(
+        [
+          {
+            name: 'DFSP1',
+            spspUrl: 'http://localhost:8010',
+            shortName: 'dfsp1',
+            default: true
+          },
+          {
+            name: 'DFSP2',
+            spspUrl: 'http://localhost:8010',
+            shortName: 'dfsp2',
+            default: false
+          }
+        ]
+      )
     },
     config: {
       validate: {
@@ -92,18 +105,52 @@ server.route([
     }
   },
   {
-    path: '/user-registration/users',
+    path: '/resources',
     method: 'post',
     handler: (request, reply) => {
       return reply({
-        url: request.payload.url,
-        number: '' + (Math.floor(Math.random() * 90000000) + 10000000)
+        name: "localhost DFSP",
+        spspUrl: 'http://localhost:8010',
+        shortName: 'dfsp1',
+        default: true
       })
     },
     config: {
       validate: {
         payload: joi.object().keys({
-          url: joi.string().uri().required()
+          identifier: joi.string().required(),
+          identifierType: joi.string().required()
+        }),
+        failAction: directoryFailActionHandler
+      }
+    }
+  },
+  {
+    path: '/resources',
+    method: 'put',
+    handler: (request, reply) => {
+      return reply([
+          {
+            name: 'DFSP1',
+            spspUrl: 'http://localhost:8010',
+            shortName: 'dfsp1',
+            default: true
+          },
+          {
+            name: 'DFSP2',
+            spspUrl: 'http://localhost:8010',
+            shortName: 'dfsp2',
+            default: false
+          }
+        ])
+    },
+    config: {
+      validate: {
+        payload: joi.object().keys({
+          identifier: joi.string().required(),
+          identifierType: joi.string().required(),
+          default: joi.bool().required(),
+          dfsp: joi.string().required()
         }),
         failAction: directoryFailActionHandler
       }
