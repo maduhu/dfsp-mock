@@ -40,13 +40,13 @@ server.route([
             name: 'DFSP1',
             spspUrl: 'http://localhost:8010',
             shortName: 'dfsp1',
-            default: true
+            default: false
           },
           {
             name: 'DFSP2',
             spspUrl: 'http://localhost:8010',
             shortName: 'dfsp2',
-            default: false
+            default: true
           }
         ]
       )
@@ -108,10 +108,11 @@ server.route([
     path: '/resources',
     method: 'post',
     handler: (request, reply) => {
+      let dfsp = request.payload.identifier.split('-')[0]
       return reply({
         name: "localhost DFSP",
         spspUrl: 'http://localhost:8010',
-        shortName: 'dfsp1',
+        shortName: dfsp || 'dfsp1',
         default: true
       })
     },
@@ -129,18 +130,19 @@ server.route([
     path: '/resources',
     method: 'put',
     handler: (request, reply) => {
+      let dfsp = request.payload.dfsp
       return reply([
           {
             name: 'DFSP1',
             spspUrl: 'http://localhost:8010',
             shortName: 'dfsp1',
-            default: true
+            default: dfsp == 'dfsp1'
           },
           {
             name: 'DFSP2',
             spspUrl: 'http://localhost:8010',
             shortName: 'dfsp2',
-            default: false
+            default: dfsp == 'dfsp2'
           }
         ])
     },
