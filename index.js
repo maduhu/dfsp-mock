@@ -131,7 +131,7 @@ server.route([
         'amount': '13',
         'firstName': 'First Name',
         'lastName': 'Last Name',
-        'account': {}
+        'account': "http://localhost:8014/accounts/" + receiver
       })
     }
   },
