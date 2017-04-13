@@ -131,7 +131,8 @@ server.route([
         'amount': '13',
         'firstName': 'First Name',
         'lastName': 'Last Name',
-        'account': "http://localhost:8014/accounts/" + receiver
+        'merchantIdentifier': 'mock_123456789',
+        'account': 'http://localhost:8014/accounts/' + receiver
       })
     }
   },
