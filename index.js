@@ -213,7 +213,7 @@ server.route([
         'address': 'levelone.dfsp2.' + receiver + '.9b5b6198-52ab-4c05-a875-72cf7448dc51',
         'memo': request.payload.memo,
         'expiresAt': date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDay() + 'T' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.199Z',
-        'condition': 'cc:0:3:wey2IMPk-3MsBpbOcObIbtgIMs0f7uBMGwebg1qUeyw:32',
+        'condition': 'ni:///sha-256;6LVZ2ubLKgVsnV1nNhiB1ZKZS8YGxx7dcyPV4Y-p9_M?fpt=preimage-sha-256&cost=32',
         'sourceAccount': request.payload.sourceAccount
       })
     },
@@ -253,18 +253,18 @@ server.route([
             {
               'account': req.payload.sourceAccount,
               'amount': req.payload.destinationAmount,
-              'memo': {},
+              'memo': {ilp_header: {data: {data: {memo: JSON.parse(req.payload.memo)}}}},
               'authorized': true
             }
           ],
           'credits': [
             {
               'account': req.payload.receiver,
-              'memo': {},
+              'memo': {ilp_header: {data: {data: {memo: JSON.parse(req.payload.memo)}}}},
               'amount': req.payload.destinationAmount
             }
           ],
-          'execution_condition': 'cc:0:3:wey2IMPk-3MsBpbOcObIbtgIMs0f7uBMGwebg1qUeyw:32',
+          'execution_condition': 'ni:///sha-256;6LVZ2ubLKgVsnV1nNhiB1ZKZS8YGxx7dcyPV4Y-p9_M?fpt=preimage-sha-256&cost=32',
           'cancellation_condition': null,
           'expires_at': '2015-06-16T00:00:01.000Z'
         }
@@ -279,7 +279,7 @@ server.route([
         request({
           url: 'http://localhost:8014/ledger/transfers/' + req.payload.id + '/fulfillment',
           method: 'PUT',
-          body: 'cf:0:qUAo3BNo49adBtbYTab2L5jAWLpAhnrkNQamsMYjWvM',
+          body: 'oCKAINnWMdlw8Vpvz8jMBdIOguJls1lMo6kBT6ERSrh11MDK',
           headers: {'Content-type': 'text/plain'}
         }, function (error, message, response) {
           if (error) {
@@ -298,7 +298,7 @@ server.route([
             'expiresAt': req.payload.expiresAt,
             'additionalHeaders': 'asdf98zxcvlknannasdpfi09qwoijasdfk09xcv009as7zxcv',
             'condition': req.payload.condition,
-            'fulfillment': 'cf:0:qUAo3BNo49adBtbYTab2L5jAWLpAhnrkNQamsMYjWvM',
+            'fulfillment': 'oCKAINnWMdlw8Vpvz8jMBdIOguJls1lMo6kBT6ERSrh11MDK',
             'status': 'executed'
           })
         })
