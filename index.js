@@ -112,8 +112,8 @@ server.route([
   {
     path: '/spspclient/query',
     method: 'get',
-    handler: (request, reply) => {
-      var receiver = request.query.receiver.split('/').pop()
+    handler: (req, reply) => {
+      var receiver = req.query.receiver.split('/').pop()
       if (receiver === 'fail') {
         return reply({
           'id': 'Error',
@@ -121,19 +121,36 @@ server.route([
           'debug': {}
         })
       }
-      return reply({
-        'currencyCode': 'USD',
-        'imageUrl': 'http://mediaserver.com/demo/images/' + receiver + '-profile-pic.jpg',
-        'currencySymbol': '$',
-        'name': receiver,
-        'type': 'payee',
-        'address': 'levelone.dfsp2.' + receiver,
-        'amount': '13',
-        'firstName': 'First Name',
-        'lastName': 'Last Name',
-        'merchantIdentifier': 'mock_123456789',
-        'account': 'http://localhost:8014/accounts/' + receiver
+      request({
+        url: req.query.receiver,
+        method: 'GET',
+        headers: {
+          Authorization: 'Basic ' + new Buffer('dfsp2' + ':' + 'dfsp2').toString('base64')
+        }
+      }, function (error, message, response) {
+        if (error) {
+          return reply({
+            'error': {
+              'message': error
+            }
+          })
+        }
+        return reply(JSON.parse(response))
       })
+
+      // return reply({
+      //   'currencyCode': 'USD',
+      //   'imageUrl': 'http://mediaserver.com/demo/images/' + receiver + '-profile-pic.jpg',
+      //   'currencySymbol': '$',
+      //   'name': receiver,
+      //   'type': 'payee',
+      //   'address': 'levelone.dfsp2.' + receiver,
+      //   'amount': '13',
+      //   'firstName': 'First Name',
+      //   'lastName': 'Last Name',
+      //   'merchantIdentifier': 'mock_123456789',
+      //   'account': 'http://localhost:8014/accounts/' + receiver
+      // })
     }
   },
   {
