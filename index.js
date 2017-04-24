@@ -124,6 +124,7 @@ server.route([
       request({
         url: req.query.receiver,
         method: 'GET',
+        json: true,
         headers: {
           Authorization: 'Basic ' + new Buffer('dfsp2' + ':' + 'dfsp2').toString('base64')
         }
@@ -135,7 +136,7 @@ server.route([
             }
           })
         }
-        return reply(JSON.parse(response))
+        return reply(response)
       })
 
       // return reply({
@@ -260,30 +261,13 @@ server.route([
           'debug': {}
         })
       }
+
       request({
-        url: 'http://localhost:8014/ledger/transfers/' + req.payload.id,
-        method: 'PUT',
-        json: {
-          'id': 'http://localhost:8014/ledger/transfers/' + req.payload.id,
-          'ledger': 'http://localhost:8014/ledger',
-          'debits': [
-            {
-              'account': req.payload.sourceAccount,
-              'amount': req.payload.destinationAmount,
-              'memo': {ilp_header: {data: {data: {memo: JSON.parse(req.payload.memo)}}}},
-              'authorized': true
-            }
-          ],
-          'credits': [
-            {
-              'account': req.payload.receiver,
-              'memo': {ilp_header: {data: {data: {memo: JSON.parse(req.payload.memo)}}}},
-              'amount': req.payload.destinationAmount
-            }
-          ],
-          'execution_condition': 'ni:///sha-256;6LVZ2ubLKgVsnV1nNhiB1ZKZS8YGxx7dcyPV4Y-p9_M?fpt=preimage-sha-256&cost=32',
-          'cancellation_condition': null,
-          'expires_at': '2015-06-16T00:00:01.000Z'
+        url: req.payload.receiver,
+        method: 'GET',
+        json: true,
+        headers: {
+          Authorization: 'Basic ' + new Buffer('dfsp2' + ':' + 'dfsp2').toString('base64')
         }
       }, function (error, message, response) {
         if (error) {
@@ -293,11 +277,32 @@ server.route([
             }
           })
         }
+        var date = new Date()
         request({
-          url: 'http://localhost:8014/ledger/transfers/' + req.payload.id + '/fulfillment',
+          url: 'http://localhost:8014/ledger/transfers/' + req.params.paymentId,
           method: 'PUT',
-          body: 'oCKAINnWMdlw8Vpvz8jMBdIOguJls1lMo6kBT6ERSrh11MDK',
-          headers: {'Content-type': 'text/plain'}
+          json: {
+            'id': 'http://localhost:8014/ledger/transfers/' + req.params.paymentId,
+            'ledger': 'http://localhost:8014/ledger',
+            'debits': [
+              {
+                'account': req.payload.sourceAccount,
+                'amount': Number(req.payload.destinationAmount),
+                'memo': {ilp_header: {data: {data: {memo: JSON.parse(req.payload.memo)}}}},
+                'authorized': true
+              }
+            ],
+            'credits': [
+              {
+                'account': response.account,
+                'memo': {ilp_header: {data: {data: {memo: JSON.parse(req.payload.memo)}}}},
+                'amount': Number(req.payload.destinationAmount)
+              }
+            ],
+            'execution_condition': 'ni:///sha-256;47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU?fpt=preimage-sha-256&cost=0',
+            'cancellation_condition': null,
+            'expires_at': new Date()
+          }
         }, function (error, message, response) {
           if (error) {
             return reply({
@@ -306,33 +311,55 @@ server.route([
               }
             })
           }
-          return reply({
-            'id': req.payload.id,
-            'address': req.payload.address,
-            'destinationAmount': req.payload.destinationAmount,
-            'sourceAmount': req.payload.sourceAmount,
-            'sourceAccount': req.payload.sourceAccount,
-            'expiresAt': req.payload.expiresAt,
-            'additionalHeaders': 'asdf98zxcvlknannasdpfi09qwoijasdfk09xcv009as7zxcv',
-            'condition': req.payload.condition,
-            'fulfillment': 'oCKAINnWMdlw8Vpvz8jMBdIOguJls1lMo6kBT6ERSrh11MDK',
-            'status': 'executed'
+          request({
+            url: 'http://localhost:8014/ledger/transfers/' + req.params.paymentId + '/fulfillment',
+            method: 'PUT',
+            body: 'oAKAAA',
+            headers: {'Content-type': 'text/plain'}
+          }, function (error, message, response) {
+            if (error) {
+              return reply({
+                'error': {
+                  'message': error
+                }
+              })
+            }
+            return reply({
+              'id': req.params.paymentId,
+              'address': req.payload.address,
+              'destinationAmount': req.payload.destinationAmount,
+              'sourceAmount': req.payload.sourceAmount,
+              'sourceAccount': req.payload.sourceAccount,
+              'expiresAt': req.payload.expiresAt,
+              'additionalHeaders': 'asdf98zxcvlknannasdpfi09qwoijasdfk09xcv009as7zxcv',
+              'condition': req.payload.condition,
+              'fulfillment': 'oCKAINnWMdlw8Vpvz8jMBdIOguJls1lMo6kBT6ERSrh11MDK',
+              'status': 'executed'
+            })
           })
         })
       })
     },
     config: {
       validate: {
+        // payload: joi.object({
+        //   'id': joi.string().required(),
+        //   'receiver': joi.string().required(),
+        //   'sourceAmount': joi.string().required(),
+        //   'destinationAmount': joi.string().required(),
+        //   'address': joi.string().required(),
+        //   'memo': joi.string().allow(''),
+        //   'expiresAt': joi.string().required(),
+        //   'condition': joi.string().required(),
+        //   'sourceAccount': joi.string().required()
+        // }),
         payload: joi.object({
-          'id': joi.string().required(),
           'receiver': joi.string().required(),
+          'sourceAccount': joi.string().required(),
           'sourceAmount': joi.string().required(),
           'destinationAmount': joi.string().required(),
-          'address': joi.string().required(),
           'memo': joi.string().allow(''),
-          'expiresAt': joi.string().required(),
-          'condition': joi.string().required(),
-          'sourceAccount': joi.string().required()
+          'sourceIdentifier': joi.string().required()
         }),
         failAction: directoryFailActionHandler
       }
