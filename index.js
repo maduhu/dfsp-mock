@@ -3,6 +3,8 @@ const joi = require('joi')
 const server = new hapi.Server()
 const request = require('request')
 const uuid = require('uuid4')
+const ILP = require('ilp')
+const Packet = require('ilp-packet')
 server.connection({ port: 8021 })
 
 function directoryFailActionHandler (request, reply, source, error) {
@@ -288,14 +290,27 @@ server.route([
               {
                 'account': req.payload.sourceAccount,
                 'amount': Number(req.payload.destinationAmount),
-                'memo': {ilp_header: {data: {data: {memo: JSON.parse(req.payload.memo)}}}},
+                'memo': {},
                 'authorized': true
               }
             ],
             'credits': [
               {
                 'account': response.account,
-                'memo': {ilp_header: {data: {data: {memo: JSON.parse(req.payload.memo)}}}},
+                'memo': {ilp: Packet.serializeIlpPayment({
+                          account: req.payload.receiver,
+                          amount: req.payload.destinationAmount,
+                          data: ILP.PSK.createDetails({
+                            publicHeaders: {'Payment-Id': req.params.paymentId},
+                            headers: {
+                              'Content-Length': JSON.stringify(req.payload.memo).length,
+                              'Content-Type': 'application/json',
+                              'Sender-Identifier': req.payload.sourceIdentifier
+                            },
+                            disableEncryption: true,
+                            data: Buffer.from(JSON.stringify(req.payload.memo))
+                          })
+                      }).toString('base64')},
                 'amount': Number(req.payload.destinationAmount)
               }
             ],
