@@ -5,6 +5,9 @@ const request = require('request')
 const uuid = require('uuid4')
 const ILP = require('ilp')
 const Packet = require('ilp-packet')
+const config = require('rc')('ut_dfsp_api_dev', {
+  cluster: 'dfsp1-test'
+})
 server.connection({ port: 8021 })
 
 function directoryFailActionHandler (request, reply, source, error) {
@@ -128,7 +131,7 @@ server.route([
         method: 'GET',
         json: true,
         headers: {
-          Authorization: 'Basic ' + new Buffer('dfsp2' + ':' + 'dfsp2').toString('base64')
+          Authorization: 'Basic ' + new Buffer(config.cluster + ':' + config.cluster).toString('base64')
         }
       }, function (error, message, response) {
         if (error) {
@@ -269,7 +272,7 @@ server.route([
         method: 'GET',
         json: true,
         headers: {
-          Authorization: 'Basic ' + new Buffer('dfsp2' + ':' + 'dfsp2').toString('base64')
+          Authorization: 'Basic ' + new Buffer(config.cluster + ':' + config.cluster).toString('base64')
         }
       }, function (error, message, response) {
         if (error) {
@@ -279,7 +282,6 @@ server.route([
             }
           })
         }
-        var date = new Date()
         request({
           url: 'http://localhost:8014/ledger/transfers/' + req.params.paymentId,
           method: 'PUT',
@@ -297,20 +299,21 @@ server.route([
             'credits': [
               {
                 'account': response.account,
-                'memo': {ilp: Packet.serializeIlpPayment({
-                          account: req.payload.receiver,
-                          amount: req.payload.destinationAmount,
-                          data: ILP.PSK.createDetails({
-                            publicHeaders: {'Payment-Id': req.params.paymentId},
-                            headers: {
-                              'Content-Length': JSON.stringify(req.payload.memo).length,
-                              'Content-Type': 'application/json',
-                              'Sender-Identifier': req.payload.sourceIdentifier
-                            },
-                            disableEncryption: true,
-                            data: Buffer.from(JSON.stringify(req.payload.memo))
-                          })
-                      }).toString('base64')},
+                'memo': {
+                  ilp: Packet.serializeIlpPayment({
+                    account: req.payload.receiver,
+                    amount: req.payload.destinationAmount,
+                    data: ILP.PSK.createDetails({
+                      publicHeaders: {'Payment-Id': req.params.paymentId},
+                      headers: {
+                        'Content-Length': JSON.stringify(req.payload.memo).length,
+                        'Content-Type': 'application/json',
+                        'Sender-Identifier': req.payload.sourceIdentifier
+                      },
+                      disableEncryption: true,
+                      data: Buffer.from(JSON.stringify(req.payload.memo))
+                    })
+                  }).toString('base64')},
                 'amount': Number(req.payload.destinationAmount)
               }
             ],
