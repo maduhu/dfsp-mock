@@ -10,7 +10,7 @@ const config = require('rc')('ut_dfsp_api_dev', {
 })
 server.connection({ port: 8021 })
 
-function directoryFailActionHandler (request, reply, source, error) {
+function directoryFailActionHandler(request, reply, source, error) {
   return reply({
     'jsonrpc': '2.0',
     'id': '',
@@ -216,45 +216,6 @@ server.route([
     }
   },
   {
-    path: '/spspclient/setup',
-    method: 'post',
-    handler: (request, reply) => {
-      var receiver = request.payload.receiver.split('/').pop()
-      if (receiver === 'fail') {
-        return reply({
-          'id': 'Error',
-          'message': 'Error getting receiver details, receiver responded with: 500 Internal Server Error',
-          'debug': {}
-        })
-      }
-      var date = new Date()
-      return reply({
-        'id': uuid(),
-        'receiver': request.payload.receiver,
-        'sourceAmount': request.payload.sourceAmount,
-        'destinationAmount': request.payload.destinationAmount,
-        'address': 'levelone.dfsp2.' + receiver + '.9b5b6198-52ab-4c05-a875-72cf7448dc51',
-        'memo': request.payload.memo,
-        'expiresAt': date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDay() + 'T' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.199Z',
-        'condition': 'ni:///sha-256;6LVZ2ubLKgVsnV1nNhiB1ZKZS8YGxx7dcyPV4Y-p9_M?fpt=preimage-sha-256&cost=32',
-        'sourceAccount': request.payload.sourceAccount
-      })
-    },
-    config: {
-      validate: {
-        payload: joi.object({
-          'receiver': joi.string().required(),
-          'sourceAccount': joi.string().required(),
-          'destinationAmount': joi.string().required(),
-          'memo': joi.string().allow(''),
-          'sourceIdentifier': joi.string().required(),
-          'sourceAmount': joi.string()
-        }),
-        failAction: directoryFailActionHandler
-      }
-    }
-  },
-  {
     path: '/spspclient/payments/{paymentId}',
     method: 'put',
     handler: (req, reply) => {
@@ -304,7 +265,7 @@ server.route([
                     account: req.payload.receiver,
                     amount: req.payload.destinationAmount,
                     data: ILP.PSK.createDetails({
-                      publicHeaders: {'Payment-Id': req.params.paymentId},
+                      publicHeaders: { 'Payment-Id': req.params.paymentId },
                       headers: {
                         'Content-Length': JSON.stringify(req.payload.memo).length,
                         'Content-Type': 'application/json',
@@ -313,7 +274,8 @@ server.route([
                       disableEncryption: true,
                       data: Buffer.from(JSON.stringify(req.payload.memo))
                     })
-                  }).toString('base64')},
+                  }).toString('base64')
+                },
                 'amount': Number(req.payload.destinationAmount)
               }
             ],
@@ -333,7 +295,7 @@ server.route([
             url: 'http://localhost:8014/ledger/transfers/' + req.params.paymentId + '/fulfillment',
             method: 'PUT',
             body: 'oAKAAA',
-            headers: {'Content-type': 'text/plain'}
+            headers: { 'Content-type': 'text/plain' }
           }, function (error, message, response) {
             if (error) {
               return reply({
@@ -360,17 +322,6 @@ server.route([
     },
     config: {
       validate: {
-        // payload: joi.object({
-        //   'id': joi.string().required(),
-        //   'receiver': joi.string().required(),
-        //   'sourceAmount': joi.string().required(),
-        //   'destinationAmount': joi.string().required(),
-        //   'address': joi.string().required(),
-        //   'memo': joi.string().allow(''),
-        //   'expiresAt': joi.string().required(),
-        //   'condition': joi.string().required(),
-        //   'sourceAccount': joi.string().required()
-        // }),
         payload: joi.object({
           'receiver': joi.string().required(),
           'sourceAccount': joi.string().required(),
@@ -380,6 +331,41 @@ server.route([
           'sourceIdentifier': joi.string().required()
         }),
         failAction: directoryFailActionHandler
+      }
+    }
+  },
+  {
+    path: '/spspclient/invoices',
+    method: 'post',
+    handler: (req, reply) => {
+      request({
+        url: 'http://localhost:8010/invoices',
+        method: 'post',
+        headers: {
+          Authorization: 'Basic ' + new Buffer(config.cluster + ':' + config.cluster).toString('base64')
+        },
+        json: {
+          invoiceUrl: 'http://localhost:8010/receivers/invoices/' + req.payload.invoiceId,
+          status: 'cancelled'
+        }
+      }, function (error, message, response) {
+        if (error) {
+          return reply({
+            'error': {
+              'message': error
+            }
+          })
+        }
+        reply(response)
+      })
+    },
+    config: {
+      validate: {
+        payload: joi.object({
+          'invoiceId': joi.string().required(),
+          'status': joi.string().required(),
+          'submissionUrl': joi.string().required()
+        })
       }
     }
   }
