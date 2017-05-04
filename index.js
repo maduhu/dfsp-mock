@@ -346,7 +346,8 @@ server.route([
         },
         json: {
           invoiceUrl: 'http://localhost:8010/receivers/invoices/' + req.payload.invoiceId,
-          status: 'cancelled'
+          memo: req.payload.memo,
+          senderIdentifier: req.payload.senderIdentifier
         }
       }, function (error, message, response) {
         if (error) {
@@ -363,8 +364,9 @@ server.route([
       validate: {
         payload: joi.object({
           'invoiceId': joi.string().required(),
-          'status': joi.string().required(),
-          'submissionUrl': joi.string().required()
+          'memo': joi.string().required(),
+          'submissionUrl': joi.string().required(),
+          'senderIdentifier': joi.string().required()
         })
       }
     }
