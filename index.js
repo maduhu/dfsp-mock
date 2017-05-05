@@ -2,7 +2,7 @@ const hapi = require('hapi')
 const joi = require('joi')
 const server = new hapi.Server()
 const request = require('request')
-const uuid = require('uuid4')
+// const uuid = require('uuid4')
 const ILP = require('ilp')
 const Packet = require('ilp-packet')
 const config = require('rc')('ut_dfsp_api_dev', {
@@ -10,7 +10,7 @@ const config = require('rc')('ut_dfsp_api_dev', {
 })
 server.connection({ port: 8021 })
 
-function directoryFailActionHandler(request, reply, source, error) {
+function directoryFailActionHandler (request, reply, source, error) {
   return reply({
     'jsonrpc': '2.0',
     'id': '',
@@ -251,7 +251,7 @@ server.route([
             'ledger': 'http://localhost:8014/ledger',
             'debits': [
               {
-                'account': req.payload.sourceAccount,
+                'account': req.payload.sourceAccount || 'http://localhost:8014/ledger/accounts/' + req.payload.accountNumber,
                 'amount': Number(req.payload.destinationAmount),
                 'memo': {},
                 'authorized': true
@@ -309,7 +309,7 @@ server.route([
               'address': req.payload.address,
               'destinationAmount': req.payload.destinationAmount,
               'sourceAmount': req.payload.sourceAmount,
-              'sourceAccount': req.payload.sourceAccount,
+              'sourceAccount': req.payload.sourceAccount || 'http://localhost:8014/ledger/accounts/' + req.payload.accountNumber,
               'expiresAt': req.payload.expiresAt,
               'additionalHeaders': 'asdf98zxcvlknannasdpfi09qwoijasdfk09xcv009as7zxcv',
               'condition': req.payload.condition,
@@ -324,7 +324,8 @@ server.route([
       validate: {
         payload: joi.object({
           'receiver': joi.string().required(),
-          'sourceAccount': joi.string().required(),
+          'sourceAccount': joi.string(),
+          'accountNumber': joi.string(),
           'sourceAmount': joi.string().required(),
           'destinationAmount': joi.string().required(),
           'memo': joi.string().allow(''),
