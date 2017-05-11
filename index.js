@@ -39,14 +39,14 @@ server.route([
           {
             name: 'DFSP1',
             spspUrl: 'http://localhost:8010',
-            shortName: 'dfsp1',
-            default: false
+            shortName: 'dfsp1-test',
+            default: true
           },
           {
             name: 'DFSP2',
             spspUrl: 'http://localhost:8010',
-            shortName: 'dfsp2',
-            default: true
+            shortName: 'dfsp2-test',
+            default: false
           }
         ]
       )
@@ -112,7 +112,7 @@ server.route([
       return reply({
         name: "localhost DFSP",
         spspUrl: 'http://localhost:8010',
-        shortName: dfsp || 'dfsp1',
+        shortName: dfsp || 'dfsp1-test',
         default: true
       })
     },
@@ -135,14 +135,14 @@ server.route([
           {
             name: 'DFSP1',
             spspUrl: 'http://localhost:8010',
-            shortName: 'dfsp1',
-            default: dfsp == 'dfsp1'
+            shortName: 'dfsp1-test',
+            default: dfsp == 'dfsp1-test'
           },
           {
             name: 'DFSP2',
             spspUrl: 'http://localhost:8010',
-            shortName: 'dfsp2',
-            default: dfsp == 'dfsp2'
+            shortName: 'dfsp2-test',
+            default: dfsp == 'dfsp2-test'
           }
         ])
     },
