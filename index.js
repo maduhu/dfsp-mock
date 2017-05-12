@@ -2,7 +2,6 @@ const hapi = require('hapi')
 const joi = require('joi')
 const server = new hapi.Server()
 const request = require('request')
-// const uuid = require('uuid4')
 const ILP = require('ilp')
 const Packet = require('ilp-packet')
 const config = require('rc')('ut_dfsp_api_dev', {
