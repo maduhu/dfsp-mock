@@ -163,9 +163,9 @@ server.route([
     path: '/spspclient/quoteSourceAmount',
     method: 'get',
     handler: (request, reply) => {
-      var receiverUri = request.query.receiver
+      var identifier = request.query.identifier
+      var identifierType = request.query.identifierType
       var sourceAmount = request.query.sourceAmount
-      var receiver = receiverUri.split('/').pop()
 
       if (!sourceAmount) {
         return reply({
@@ -173,11 +173,11 @@ server.route([
           'message': 'sourceAmount query string parameter is required'
         })
       }
-      if (!receiverUri || !receiver) {
+      if (!identifier) {
         return reply({
           'error': {
             'id': 'Bad request',
-            'message': 'Failed to process request for interopID=2b39b6ab-8a9f-4a8d-9257-9ca2d73c2561: Required query parameter receiver not specified'
+            'message': 'Failed to process request for interopID=2b39b6ab-8a9f-4a8d-9257-9ca2d73c2561: Required query parameter identifier not specified'
           },
           'debug': {}
         })
@@ -191,9 +191,9 @@ server.route([
     path: '/spspclient/quoteDestinationAmount',
     method: 'get',
     handler: (request, reply) => {
-      var receiverUri = request.query.receiver
+      var identifier = request.query.identifier
+      var identifierType = request.query.identifierType
       var destinationAmount = request.query.destinationAmount
-      var receiver = receiverUri.split('/').pop()
 
       if (!destinationAmount) {
         return reply({
@@ -201,11 +201,11 @@ server.route([
           'message': 'destinationAmount query string parameter is required'
         })
       }
-      if (!receiverUri || !receiver) {
+      if (!identifier) {
         return reply({
           'error': {
             'id': 'Bad request',
-            'message': 'Failed to process request for interopID=2b39b6ab-8a9f-4a8d-9257-9ca2d73c2561: Required query parameter receiver not specified'
+            'message': 'Failed to process request for interopID=2b39b6ab-8a9f-4a8d-9257-9ca2d73c2561: Required query parameter identifier not specified'
           },
           'debug': {}
         })
