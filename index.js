@@ -172,6 +172,12 @@ server.route([
           'message': 'sourceAmount query string parameter is required'
         })
       }
+      if (!identifierType) {
+        return reply({
+          'id': 'BadRequest',
+          'message': 'identifierType query string parameter is required'
+        })
+      }
       if (!identifier) {
         return reply({
           'error': {
@@ -198,6 +204,12 @@ server.route([
         return reply({
           'id': 'BadRequest',
           'message': 'destinationAmount query string parameter is required'
+        })
+      }
+      if (!identifierType) {
+        return reply({
+          'id': 'BadRequest',
+          'message': 'identifierType query string parameter is required'
         })
       }
       if (!identifier) {
@@ -250,7 +262,7 @@ server.route([
             'ledger': 'http://localhost:8014/ledger',
             'debits': [
               {
-                'account': req.payload.sourceAccount || 'http://localhost:8014/ledger/accounts/' + req.payload.accountNumber,
+                'account': req.payload.sourceAccount,
                 'amount': Number(req.payload.destinationAmount),
                 'memo': {},
                 'authorized': true
@@ -308,7 +320,7 @@ server.route([
               'address': req.payload.address,
               'destinationAmount': req.payload.destinationAmount,
               'sourceAmount': req.payload.sourceAmount,
-              'sourceAccount': req.payload.sourceAccount || 'http://localhost:8014/ledger/accounts/' + req.payload.accountNumber,
+              'sourceAccount': req.payload.sourceAccount,
               'expiresAt': req.payload.expiresAt,
               'additionalHeaders': 'asdf98zxcvlknannasdpfi09qwoijasdfk09xcv009as7zxcv',
               'condition': req.payload.condition,
@@ -323,8 +335,7 @@ server.route([
       validate: {
         payload: joi.object({
           'receiver': joi.string().required(),
-          'sourceAccount': joi.string(),
-          'accountNumber': joi.string(),
+          'sourceAccount': joi.string().required(),
           'sourceAmount': joi.string().required(),
           'destinationAmount': joi.string().required(),
           'memo': joi.string().allow(''),
