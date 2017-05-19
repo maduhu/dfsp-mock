@@ -6,6 +6,11 @@
   "scripts": {
     "changelog": "ut-changelog",
     "check": "ut-check",
+    "circleci:build": "ut-circleci-build",
+    "circleci:cover": "ut-circleci-cover",
+    "circleci:tag": "ut-circleci-tag",
+    "circleci:push": "ut-circleci-push",
+    "circleci:test": "ut-circleci-test",
     "cover": "ut-cover",
     "gitlab": "ut-gitlab",
     "jenkins": "ut-jenkins",
