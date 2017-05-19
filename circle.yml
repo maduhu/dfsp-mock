@@ -9,7 +9,7 @@ machine:
 dependencies:
   pre:
     - curl -u$NPM_USER:$NPM_PASSWORD "https://modusbox.jfrog.io/modusbox/api/npm/level1-npm-release/auth/leveloneproject" >>.npmrc
-
+    - env
 test:
   override:
     - git branch -u origin/$CIRCLE_BRANCH
