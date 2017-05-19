@@ -2,7 +2,6 @@ const hapi = require('hapi')
 const joi = require('joi')
 const server = new hapi.Server()
 const request = require('request')
-const uuid = require('uuid4')
 const ILP = require('ilp')
 const Packet = require('ilp-packet')
 const config = require('rc')('ut_dfsp_api_dev', {
@@ -10,7 +9,7 @@ const config = require('rc')('ut_dfsp_api_dev', {
 })
 server.connection({ port: 8021 })
 
-function directoryFailActionHandler(request, reply, source, error) {
+function directoryFailActionHandler (request, reply, source, error) {
   return reply({
     'jsonrpc': '2.0',
     'id': '',
@@ -163,9 +162,9 @@ server.route([
     path: '/spspclient/quoteSourceAmount',
     method: 'get',
     handler: (request, reply) => {
-      var receiverUri = request.query.receiver
+      var identifier = request.query.identifier
+      var identifierType = request.query.identifierType
       var sourceAmount = request.query.sourceAmount
-      var receiver = receiverUri.split('/').pop()
 
       if (!sourceAmount) {
         return reply({
@@ -173,11 +172,17 @@ server.route([
           'message': 'sourceAmount query string parameter is required'
         })
       }
-      if (!receiverUri || !receiver) {
+      if (!identifierType) {
+        return reply({
+          'id': 'BadRequest',
+          'message': 'identifierType query string parameter is required'
+        })
+      }
+      if (!identifier) {
         return reply({
           'error': {
             'id': 'Bad request',
-            'message': 'Failed to process request for interopID=2b39b6ab-8a9f-4a8d-9257-9ca2d73c2561: Required query parameter receiver not specified'
+            'message': 'Failed to process request for interopID=2b39b6ab-8a9f-4a8d-9257-9ca2d73c2561: Required query parameter identifier not specified'
           },
           'debug': {}
         })
@@ -191,9 +196,9 @@ server.route([
     path: '/spspclient/quoteDestinationAmount',
     method: 'get',
     handler: (request, reply) => {
-      var receiverUri = request.query.receiver
+      var identifier = request.query.identifier
+      var identifierType = request.query.identifierType
       var destinationAmount = request.query.destinationAmount
-      var receiver = receiverUri.split('/').pop()
 
       if (!destinationAmount) {
         return reply({
@@ -201,11 +206,17 @@ server.route([
           'message': 'destinationAmount query string parameter is required'
         })
       }
-      if (!receiverUri || !receiver) {
+      if (!identifierType) {
+        return reply({
+          'id': 'BadRequest',
+          'message': 'identifierType query string parameter is required'
+        })
+      }
+      if (!identifier) {
         return reply({
           'error': {
             'id': 'Bad request',
-            'message': 'Failed to process request for interopID=2b39b6ab-8a9f-4a8d-9257-9ca2d73c2561: Required query parameter receiver not specified'
+            'message': 'Failed to process request for interopID=2b39b6ab-8a9f-4a8d-9257-9ca2d73c2561: Required query parameter identifier not specified'
           },
           'debug': {}
         })
