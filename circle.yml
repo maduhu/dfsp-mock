@@ -22,4 +22,3 @@ deployment:
       - npm run circleci:build
       - npm run circleci:cover
       - npm run circleci:tag
-      - npm run circleci:push
