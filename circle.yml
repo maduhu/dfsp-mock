@@ -20,4 +20,6 @@ deployment:
     branch: /^(master|(hotfix|major|minor|patch)\/[^/]+)$/
     commands:
       - npm run circleci:build
+      - npm run circleci:cover
+      - npm run circleci:tag
       - npm run circleci:push
