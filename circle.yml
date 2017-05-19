@@ -12,11 +12,12 @@ dependencies:
 
 test:
   override:
+    - git branch -u origin/$CIRCLE_BRANCH
     - npm run circleci:test
 
 deployment:
   prod:
-    branch: master
+    branch: /^(master|(hotfix|major|minor|patch)\/[^/]+)$/
     commands:
       - npm run circleci:build
       - npm run circleci:push
