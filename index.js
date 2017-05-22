@@ -384,15 +384,20 @@ server.route([
   }
 ])
 
-server.start((err) => {
-  if (err) {
-    throw err
+module.exports = new Promise(function(resolve, reject) {
+  server.start((err) => {
+    if (err) {
+      reject(err)
+    } else {
+      resolve(true)
+    }
+  })
+})
+.then(() => {
+  return {
+    stop: function () {
+      return Promise.resolve(server.stop())
+    }
   }
 })
 
-module.exports = Promise.resolve({
-  stop: function () {
-    server.stop()
-    return Promise.resolve()
-  }
-})
