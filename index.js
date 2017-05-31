@@ -2,7 +2,11 @@ const hapi = require('hapi')
 const joi = require('joi')
 const server = new hapi.Server()
 const request = require('request')
-const uuid = require('uuid4')
+const ILP = require('ilp')
+const Packet = require('ilp-packet')
+const config = require('rc')('ut_dfsp_api_dev', {
+  cluster: 'dfsp1-test'
+})
 server.connection({ port: 8021 })
 
 function directoryFailActionHandler (request, reply, source, error) {
@@ -161,8 +165,8 @@ server.route([
   {
     path: '/spspclient/query',
     method: 'get',
-    handler: (request, reply) => {
-      var receiver = request.query.receiver.split('/').pop()
+    handler: (req, reply) => {
+      var receiver = req.query.receiver.split('/').pop()
       if (receiver === 'fail') {
         return reply({
           'id': 'Error',
@@ -170,27 +174,46 @@ server.route([
           'debug': {}
         })
       }
-      return reply({
-        'currencyCode': 'USD',
-        'imageUrl': 'http://mediaserver.com/demo/images/' + receiver + '-profile-pic.jpg',
-        'currencySymbol': '$',
-        'name': receiver,
-        'type': 'payee',
-        'address': 'levelone.dfsp2.' + receiver,
-        'amount': '13',
-        'firstName': 'First Name',
-        'lastName': 'Last Name',
-        'account': {}
+      request({
+        url: req.query.receiver,
+        method: 'GET',
+        json: true,
+        headers: {
+          Authorization: 'Basic ' + new Buffer(config.cluster + ':' + config.cluster).toString('base64')
+        }
+      }, function (error, message, response) {
+        if (error) {
+          return reply({
+            'error': {
+              'message': error
+            }
+          })
+        }
+        return reply(response)
       })
+
+      // return reply({
+      //   'currencyCode': 'USD',
+      //   'imageUrl': 'http://mediaserver.com/demo/images/' + receiver + '-profile-pic.jpg',
+      //   'currencySymbol': '$',
+      //   'name': receiver,
+      //   'type': 'payee',
+      //   'address': 'levelone.dfsp2.' + receiver,
+      //   'amount': '13',
+      //   'firstName': 'First Name',
+      //   'lastName': 'Last Name',
+      //   'merchantIdentifier': 'mock_123456789',
+      //   'account': 'http://localhost:8014/accounts/' + receiver
+      // })
     }
   },
   {
     path: '/spspclient/quoteSourceAmount',
     method: 'get',
     handler: (request, reply) => {
-      var receiverUri = request.query.receiver
+      var identifier = request.query.identifier
+      var identifierType = request.query.identifierType
       var sourceAmount = request.query.sourceAmount
-      var receiver = receiverUri.split('/').pop()
 
       if (!sourceAmount) {
         return reply({
@@ -198,11 +221,17 @@ server.route([
           'message': 'sourceAmount query string parameter is required'
         })
       }
-      if (!receiverUri || !receiver) {
+      if (!identifierType) {
+        return reply({
+          'id': 'BadRequest',
+          'message': 'identifierType query string parameter is required'
+        })
+      }
+      if (!identifier) {
         return reply({
           'error': {
             'id': 'Bad request',
-            'message': 'Failed to process request for interopID=2b39b6ab-8a9f-4a8d-9257-9ca2d73c2561: Required query parameter receiver not specified'
+            'message': 'Failed to process request for interopID=2b39b6ab-8a9f-4a8d-9257-9ca2d73c2561: Required query parameter identifier not specified'
           },
           'debug': {}
         })
@@ -216,9 +245,9 @@ server.route([
     path: '/spspclient/quoteDestinationAmount',
     method: 'get',
     handler: (request, reply) => {
-      var receiverUri = request.query.receiver
+      var identifier = request.query.identifier
+      var identifierType = request.query.identifierType
       var destinationAmount = request.query.destinationAmount
-      var receiver = receiverUri.split('/').pop()
 
       if (!destinationAmount) {
         return reply({
@@ -226,11 +255,17 @@ server.route([
           'message': 'destinationAmount query string parameter is required'
         })
       }
-      if (!receiverUri || !receiver) {
+      if (!identifierType) {
+        return reply({
+          'id': 'BadRequest',
+          'message': 'identifierType query string parameter is required'
+        })
+      }
+      if (!identifier) {
         return reply({
           'error': {
             'id': 'Bad request',
-            'message': 'Failed to process request for interopID=2b39b6ab-8a9f-4a8d-9257-9ca2d73c2561: Required query parameter receiver not specified'
+            'message': 'Failed to process request for interopID=2b39b6ab-8a9f-4a8d-9257-9ca2d73c2561: Required query parameter identifier not specified'
           },
           'debug': {}
         })
@@ -238,45 +273,6 @@ server.route([
       return reply({
         'sourceAmount': destinationAmount * 1.025
       })
-    }
-  },
-  {
-    path: '/spspclient/setup',
-    method: 'post',
-    handler: (request, reply) => {
-      var receiver = request.payload.receiver.split('/').pop()
-      if (receiver === 'fail') {
-        return reply({
-          'id': 'Error',
-          'message': 'Error getting receiver details, receiver responded with: 500 Internal Server Error',
-          'debug': {}
-        })
-      }
-      var date = new Date()
-      return reply({
-        'id': uuid(),
-        'receiver': request.payload.receiver,
-        'sourceAmount': request.payload.sourceAmount,
-        'destinationAmount': request.payload.destinationAmount,
-        'address': 'levelone.dfsp2.' + receiver + '.9b5b6198-52ab-4c05-a875-72cf7448dc51',
-        'memo': request.payload.memo,
-        'expiresAt': date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDay() + 'T' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.199Z',
-        'condition': 'cc:0:3:wey2IMPk-3MsBpbOcObIbtgIMs0f7uBMGwebg1qUeyw:32',
-        'sourceAccount': request.payload.sourceAccount
-      })
-    },
-    config: {
-      validate: {
-        payload: joi.object({
-          'receiver': joi.string().required(),
-          'sourceAccount': joi.string().required(),
-          'destinationAmount': joi.string().required(),
-          'memo': joi.string().allow(''),
-          'sourceIdentifier': joi.string().required(),
-          'sourceAmount': joi.string()
-        }),
-        failAction: directoryFailActionHandler
-      }
     }
   },
   {
@@ -291,30 +287,13 @@ server.route([
           'debug': {}
         })
       }
+
       request({
-        url: 'http://localhost:8014/ledger/transfers/' + req.payload.id,
-        method: 'PUT',
-        json: {
-          'id': 'http://localhost:8014/ledger/transfers/' + req.payload.id,
-          'ledger': 'http://localhost:8014/ledger',
-          'debits': [
-            {
-              'account': req.payload.sourceAccount,
-              'amount': req.payload.destinationAmount,
-              'memo': {},
-              'authorized': true
-            }
-          ],
-          'credits': [
-            {
-              'account': req.payload.receiver,
-              'memo': {},
-              'amount': req.payload.destinationAmount
-            }
-          ],
-          'execution_condition': 'cc:0:3:wey2IMPk-3MsBpbOcObIbtgIMs0f7uBMGwebg1qUeyw:32',
-          'cancellation_condition': null,
-          'expires_at': '2015-06-16T00:00:01.000Z'
+        url: req.payload.receiver,
+        method: 'GET',
+        json: true,
+        headers: {
+          Authorization: 'Basic ' + new Buffer(config.cluster + ':' + config.cluster).toString('base64')
         }
       }, function (error, message, response) {
         if (error) {
@@ -325,10 +304,45 @@ server.route([
           })
         }
         request({
-          url: 'http://localhost:8014/ledger/transfers/' + req.payload.id + '/fulfillment',
+          url: 'http://localhost:8014/ledger/transfers/' + req.params.paymentId,
           method: 'PUT',
-          body: 'cf:0:qUAo3BNo49adBtbYTab2L5jAWLpAhnrkNQamsMYjWvM',
-          headers: {'Content-type': 'text/plain'}
+          json: {
+            'id': 'http://localhost:8014/ledger/transfers/' + req.params.paymentId,
+            'ledger': 'http://localhost:8014/ledger',
+            'debits': [
+              {
+                'account': req.payload.sourceAccount,
+                'amount': Number(req.payload.destinationAmount),
+                'memo': {},
+                'authorized': true
+              }
+            ],
+            'credits': [
+              {
+                'account': response.account,
+                'memo': {
+                  ilp: Packet.serializeIlpPayment({
+                    account: req.payload.receiver,
+                    amount: req.payload.destinationAmount,
+                    data: ILP.PSK.createDetails({
+                      publicHeaders: { 'Payment-Id': req.params.paymentId },
+                      headers: {
+                        'Content-Length': JSON.stringify(req.payload.memo).length,
+                        'Content-Type': 'application/json',
+                        'Sender-Identifier': req.payload.sourceIdentifier
+                      },
+                      disableEncryption: true,
+                      data: Buffer.from(JSON.stringify(req.payload.memo))
+                    })
+                  }).toString('base64')
+                },
+                'amount': Number(req.payload.destinationAmount)
+              }
+            ],
+            'execution_condition': 'ni:///sha-256;47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU?fpt=preimage-sha-256&cost=0',
+            'cancellation_condition': null,
+            'expires_at': new Date()
+          }
         }, function (error, message, response) {
           if (error) {
             return reply({
@@ -337,17 +351,31 @@ server.route([
               }
             })
           }
-          return reply({
-            'id': req.payload.id,
-            'address': req.payload.address,
-            'destinationAmount': req.payload.destinationAmount,
-            'sourceAmount': req.payload.sourceAmount,
-            'sourceAccount': req.payload.sourceAccount,
-            'expiresAt': req.payload.expiresAt,
-            'additionalHeaders': 'asdf98zxcvlknannasdpfi09qwoijasdfk09xcv009as7zxcv',
-            'condition': req.payload.condition,
-            'fulfillment': 'cf:0:qUAo3BNo49adBtbYTab2L5jAWLpAhnrkNQamsMYjWvM',
-            'status': 'executed'
+          request({
+            url: 'http://localhost:8014/ledger/transfers/' + req.params.paymentId + '/fulfillment',
+            method: 'PUT',
+            body: 'oAKAAA',
+            headers: { 'Content-type': 'text/plain' }
+          }, function (error, message, response) {
+            if (error) {
+              return reply({
+                'error': {
+                  'message': error
+                }
+              })
+            }
+            return reply({
+              'id': req.params.paymentId,
+              'address': req.payload.address,
+              'destinationAmount': req.payload.destinationAmount,
+              'sourceAmount': req.payload.sourceAmount,
+              'sourceAccount': req.payload.sourceAccount,
+              'expiresAt': req.payload.expiresAt,
+              'additionalHeaders': 'asdf98zxcvlknannasdpfi09qwoijasdfk09xcv009as7zxcv',
+              'condition': req.payload.condition,
+              'fulfillment': 'oCKAINnWMdlw8Vpvz8jMBdIOguJls1lMo6kBT6ERSrh11MDK',
+              'status': 'executed'
+            })
           })
         })
       })
@@ -355,31 +383,70 @@ server.route([
     config: {
       validate: {
         payload: joi.object({
-          'id': joi.string().required(),
           'receiver': joi.string().required(),
+          'sourceAccount': joi.string().required(),
           'sourceAmount': joi.string().required(),
           'destinationAmount': joi.string().required(),
-          'address': joi.string().required(),
           'memo': joi.string().allow(''),
-          'expiresAt': joi.string().required(),
-          'condition': joi.string().required(),
-          'sourceAccount': joi.string().required()
+          'sourceIdentifier': joi.string().required()
         }),
         failAction: directoryFailActionHandler
+      }
+    }
+  },
+  {
+    path: '/spspclient/invoices',
+    method: 'post',
+    handler: (req, reply) => {
+      request({
+        url: 'http://localhost:8010/invoices',
+        method: 'post',
+        headers: {
+          Authorization: 'Basic ' + new Buffer(config.cluster + ':' + config.cluster).toString('base64')
+        },
+        json: {
+          invoiceUrl: 'http://localhost:8010/receivers/invoices/' + req.payload.invoiceId,
+          memo: req.payload.memo,
+          senderIdentifier: req.payload.senderIdentifier
+        }
+      }, function (error, message, response) {
+        if (error) {
+          return reply({
+            'error': {
+              'message': error
+            }
+          })
+        }
+        reply(response)
+      })
+    },
+    config: {
+      validate: {
+        payload: joi.object({
+          'invoiceId': joi.string().required(),
+          'memo': joi.string().required(),
+          'submissionUrl': joi.string().required(),
+          'senderIdentifier': joi.string().required()
+        })
       }
     }
   }
 ])
 
-server.start((err) => {
-  if (err) {
-    throw err
+module.exports = new Promise(function(resolve, reject) {
+  server.start((err) => {
+    if (err) {
+      reject(err)
+    } else {
+      resolve(true)
+    }
+  })
+})
+.then(() => {
+  return {
+    stop: function () {
+      return Promise.resolve(server.stop())
+    }
   }
 })
 
-module.exports = Promise.resolve({
-  stop: function () {
-    server.stop()
-    return Promise.resolve()
-  }
-})

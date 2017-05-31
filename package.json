@@ -1,11 +1,16 @@
 {
   "name": "@leveloneproject/dfsp-mock",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "DFPS mock",
   "main": "index.js",
   "scripts": {
     "changelog": "ut-changelog",
     "check": "ut-check",
+    "circleci:build": "ut-circleci-build",
+    "circleci:cover": "ut-circleci-cover",
+    "circleci:tag": "ut-circleci-tag",
+    "circleci:push": "ut-circleci-push",
+    "circleci:test": "ut-circleci-test",
     "cover": "ut-cover",
     "gitlab": "ut-gitlab",
     "jenkins": "ut-jenkins",
@@ -41,12 +46,16 @@
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
     "hapi": "^15.1.1",
+    "ilp": "10.0.1",
+    "ilp-packet": "^1.1.1",
     "joi": "^9.1.1",
+    "lodash": "^4.17.4",
+    "rc": "^1.2.1",
     "request": "^2.79.0",
     "uuid4": "^1.0.0"
   },
   "devDependencies": {
-    "ut-tools": "^5.13.5",
+    "ut-tools": "^5.17.16",
     "tap-xunit": "1.4.0"
   }
 }
