@@ -381,10 +381,60 @@ server.route([
         })
       }
     }
+  },
+  {
+    path: '/spspclient/quotes',
+    method: 'put',
+    handler: (req, reply) => {
+      delete req.payload.payee.url
+      request({
+        url: 'http://localhost:8010/quotes',
+        method: 'put',
+        headers: {
+          Authorization: 'Basic ' + new Buffer(config.cluster + ':' + config.cluster).toString('base64')
+        },
+        json: req.payload
+      }, function (error, message, response) {
+        if (error) {
+          return reply({
+            'error': {
+              'message': error
+            }
+          })
+        }
+        reply(response)
+      })
+    },
+    config: {
+      validate: {
+        payload: joi.object().keys({
+          transferId: joi.string().required().regex(/^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/).example('3a2a1d9e-8640-4d2d-b06c-84f2cd613300').description('The UUID for the local transfer'),
+          payer: joi.object().keys({
+            identifier: joi.string().required().example('92806391'),
+            identifierType: joi.string().required().example('eur')
+          }).required(),
+          payee: joi.object().keys({
+            url: joi.string().required().example('http://localhost:8020/quotes'),
+            identifier: joi.string().required().example('30754016'),
+            identifierType: joi.string().required().example('eur')
+          }).required(),
+          transferType: joi.string().required().example('p2p'),
+          amountType: joi.string().required().valid(['SEND', 'RECEIVE']).example('SEND'),
+          amount: joi.object().keys({
+            amount: joi.string().example('10'),
+            currency: joi.string().example('USD')
+          }).required(),
+          fees: joi.object().keys({
+            amount: joi.string().example('0.25'),
+            currency: joi.string().example('USD')
+          }).optional()
+        }).unknown().required()
+      }
+    }
   }
 ])
 
-module.exports = new Promise(function(resolve, reject) {
+module.exports = new Promise(function (resolve, reject) {
   server.start((err) => {
     if (err) {
       reject(err)
@@ -400,4 +450,3 @@ module.exports = new Promise(function(resolve, reject) {
     }
   }
 })
-
