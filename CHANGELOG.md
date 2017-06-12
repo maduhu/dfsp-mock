@@ -1,3 +1,13 @@
+<a name="0.0.5"></a>
+## [0.0.5](https://github.com/softwaregroup-bg/@leveloneproject/dfsp-mock/compare/v0.0.4...v0.0.5) (2017-06-12)
+
+
+### Bug Fixes
+
+* quote api ([0134222](https://github.com/softwaregroup-bg/@leveloneproject/dfsp-mock/commit/0134222))
+
+
+
 <a name="0.0.4"></a>
 ## [0.0.4](https://github.com/softwaregroup-bg/@leveloneproject/dfsp-mock/compare/v0.0.3...v0.0.4) (2017-05-26)
 
