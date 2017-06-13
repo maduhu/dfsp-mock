@@ -402,6 +402,11 @@ server.route([
             }
           })
         }
+        response.receiveAmount = {
+          amount: req.payload.amount.amount,
+          currency: req.payload.amount.currency
+        }
+        response.ipr = 'c29tZSBpcHIgaGVyZQ=='
         reply(response)
       })
     },
