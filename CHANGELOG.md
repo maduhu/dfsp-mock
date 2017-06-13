@@ -1,3 +1,13 @@
+<a name="0.0.6"></a>
+## [0.0.6](https://github.com/softwaregroup-bg/@leveloneproject/dfsp-mock/compare/v0.0.5...v0.0.6) (2017-06-13)
+
+
+### Bug Fixes
+
+* mock proxy response ([0f63546](https://github.com/softwaregroup-bg/@leveloneproject/dfsp-mock/commit/0f63546))
+
+
+
 <a name="0.0.5"></a>
 ## [0.0.5](https://github.com/softwaregroup-bg/@leveloneproject/dfsp-mock/compare/v0.0.4...v0.0.5) (2017-06-12)
 
