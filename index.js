@@ -50,10 +50,8 @@ server.route([
         }),
         failAction: (request, reply, source, error) => {
           return reply({
-            'error': {
-              'message': 'Bad request'
-            }
-          })
+            'message': 'Bad request'
+          }).code(400)
         }
       }
     }
@@ -64,10 +62,8 @@ server.route([
     handler: (request, reply) => {
       if (request.payload.params.userURI === 'number:fail') {
         return reply({
-          'error': {
-            'message': 'Account not found for userURI=' + request.payload.params.userURI
-          }
-        })
+          'message': 'Account not found for userURI=' + request.payload.params.userURI
+        }).code(400)
       }
       return reply({
         'jsonrpc': '2.0',
@@ -133,12 +129,13 @@ server.route([
           Authorization: 'Basic ' + new Buffer(config.cluster + ':' + config.cluster).toString('base64')
         }
       }, function (error, message, response) {
+        if (message.statusCode >= 400) {
+          error = response.message
+        }
         if (error) {
           return reply({
-            'error': {
-              'message': error
-            }
-          })
+            'message': error
+          }).code(400)
         }
         return reply(response)
       })
@@ -247,12 +244,13 @@ server.route([
           Authorization: 'Basic ' + new Buffer(config.cluster + ':' + config.cluster).toString('base64')
         }
       }, function (error, message, response) {
+        if (message.statusCode >= 400) {
+          error = response.message
+        }
         if (error) {
           return reply({
-            'error': {
-              'message': error
-            }
-          })
+            'message': error
+          }).code(400)
         }
         request({
           url: 'http://localhost:8014/ledger/transfers/' + req.params.paymentId,
@@ -295,12 +293,13 @@ server.route([
             'expires_at': new Date()
           }
         }, function (error, message, response) {
+          if (message.statusCode >= 400) {
+            error = response.message
+          }
           if (error) {
             return reply({
-              'error': {
-                'message': error
-              }
-            })
+              'message': error
+            }).code(400)
           }
           request({
             url: 'http://localhost:8014/ledger/transfers/' + req.params.paymentId + '/fulfillment',
@@ -308,12 +307,13 @@ server.route([
             body: 'oAKAAA',
             headers: { 'Content-type': 'text/plain' }
           }, function (error, message, response) {
+            if (message.statusCode >= 400) {
+              error = response.message
+            }
             if (error) {
               return reply({
-                'error': {
-                  'message': error
-                }
-              })
+                'message': error
+              }).code(400)
             }
             return reply({
               'id': req.params.paymentId,
@@ -361,12 +361,13 @@ server.route([
           senderIdentifier: req.payload.senderIdentifier
         }
       }, function (error, message, response) {
+        if (message.statusCode >= 400) {
+          error = response.message
+        }
         if (error) {
           return reply({
-            'error': {
-              'message': error
-            }
-          })
+            'message': error
+          }).code(400)
         }
         reply(response)
       })
@@ -384,23 +385,24 @@ server.route([
   },
   {
     path: '/spspclient/quotes',
-    method: 'put',
+    method: 'post',
     handler: (req, reply) => {
       delete req.payload.payee.url
       request({
         url: 'http://localhost:8010/quotes',
-        method: 'put',
+        method: 'post',
         headers: {
           Authorization: 'Basic ' + new Buffer(config.cluster + ':' + config.cluster).toString('base64')
         },
         json: req.payload
       }, function (error, message, response) {
+        if (message.statusCode >= 400) {
+          error = response.message
+        }
         if (error) {
           return reply({
-            'error': {
-              'message': error
-            }
-          })
+            'message': error
+          }).code(400)
         }
         response.receiveAmount = {
           amount: req.payload.amount.amount,
