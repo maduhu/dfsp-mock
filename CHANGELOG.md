@@ -1,3 +1,13 @@
+<a name="0.0.7"></a>
+## [0.0.7](https://github.com/softwaregroup-bg/@leveloneproject/dfsp-mock/compare/v0.0.6...v0.0.7) (2017-06-14)
+
+
+### Bug Fixes
+
+* error responses ([2d9a09f](https://github.com/softwaregroup-bg/@leveloneproject/dfsp-mock/commit/2d9a09f))
+
+
+
 <a name="0.0.6"></a>
 ## [0.0.6](https://github.com/softwaregroup-bg/@leveloneproject/dfsp-mock/compare/v0.0.5...v0.0.6) (2017-06-13)
 
