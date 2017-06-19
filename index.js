@@ -58,8 +58,7 @@ server.route([
     config: {
       validate: {
         query: joi.object().keys({
-          identifier: joi.string().required(),
-          identifierType: joi.string().required()
+          identifier: joi.string().required()
         }),
         failAction: (request, reply, source, error) => {
           return reply({
@@ -123,8 +122,7 @@ server.route([
     config: {
       validate: {
         payload: joi.object().keys({
-          identifier: joi.string().required(),
-          identifierType: joi.string().required()
+          identifier: joi.string().required()
         }),
         failAction: directoryFailActionHandler
       }
@@ -154,7 +152,6 @@ server.route([
       validate: {
         payload: joi.object().keys({
           identifier: joi.string().required(),
-          identifierType: joi.string().required(),
           default: joi.bool().required(),
           dfsp: joi.string().required()
         }),
