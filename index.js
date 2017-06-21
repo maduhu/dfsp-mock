@@ -315,6 +315,20 @@ server.route([
                 'message': error
               }).code(400)
             }
+
+            request({
+              url: 'http://localhost:8010/receivers/' + response.account + '/payments/' + req.params.paymentId ,
+              method: 'PUT',
+              json: {
+                transferId: req.params.paymentId,
+                destinationAmount: req.payload.destinationAmount,
+                status: 'executed'
+              },
+              headers: {
+                Authorization: 'Basic ' + new Buffer(config.cluster + ':' + config.cluster).toString('base64')
+              }
+            }, function (error, message, response) {})
+
             return reply({
               'id': req.params.paymentId,
               'address': req.payload.address,
