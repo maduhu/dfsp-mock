@@ -1,3 +1,13 @@
+<a name="0.0.9"></a>
+## [0.0.9](https://github.com/softwaregroup-bg/@leveloneproject/dfsp-mock/compare/v0.0.8...v0.0.9) (2017-06-21)
+
+
+### Bug Fixes
+
+* add call to transfer.notify ([1d4a865](https://github.com/softwaregroup-bg/@leveloneproject/dfsp-mock/commit/1d4a865))
+
+
+
 <a name="0.0.8"></a>
 ## [0.0.8](https://github.com/softwaregroup-bg/@leveloneproject/dfsp-mock/compare/v0.0.7...v0.0.8) (2017-06-19)
 
