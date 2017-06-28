@@ -1,3 +1,13 @@
+<a name="0.0.10"></a>
+## [0.0.10](https://github.com/softwaregroup-bg/@leveloneproject/dfsp-mock/compare/v0.0.9...v0.0.10) (2017-06-28)
+
+
+### Bug Fixes
+
+* change transferId to paymentId ([2564342](https://github.com/softwaregroup-bg/@leveloneproject/dfsp-mock/commit/2564342))
+
+
+
 <a name="0.0.9"></a>
 ## [0.0.9](https://github.com/softwaregroup-bg/@leveloneproject/dfsp-mock/compare/v0.0.8...v0.0.9) (2017-06-21)
 
