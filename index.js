@@ -227,8 +227,9 @@ server.route([
     path: '/spspclient/payments/{paymentId}',
     method: 'put',
     handler: (req, reply) => {
-      var receiver = req.payload.receiver.split('/').pop()
-      if (receiver === 'fail') {
+      var ipr = ILP.PSK.parsePacketAndDetails({ packet: ILP.IPR.decodeIPR(Buffer.from(req.payload.ipr, 'base64')).packet })
+      var receiver = ipr.account.substr(0, ipr.account.lastIndexOf('.'))
+      if (receiver.indexOf('fail') !== -1) {
         return reply({
           'id': 'Error',
           'message': 'Error getting receiver details, receiver responded with: 500 Internal Server Error',
@@ -237,7 +238,7 @@ server.route([
       }
 
       request({
-        url: req.payload.receiver,
+        url: receiver,
         method: 'GET',
         json: true,
         headers: {
@@ -253,39 +254,39 @@ server.route([
           }).code(400)
         }
         request({
-          url: 'http://localhost:8014/ledger/transfers/' + req.params.paymentId,
+          url: 'http://localhost:8014/ledger/transfers/' + ipr.publicHeaders['payment-id'],
           method: 'PUT',
           json: {
-            'id': 'http://localhost:8014/ledger/transfers/' + req.params.paymentId,
+            'id': 'http://localhost:8014/ledger/transfers/' + ipr.publicHeaders['payment-id'],
             'ledger': 'http://localhost:8014/ledger',
             'debits': [
               {
                 'account': req.payload.sourceAccount,
-                'amount': Number(req.payload.destinationAmount),
+                'amount': Number(ipr.amount),
                 'memo': {},
                 'authorized': true
               }
             ],
             'credits': [
               {
-                'account': response.account,
+                'account': response.id,
                 'memo': {
                   ilp: Packet.serializeIlpPayment({
-                    account: req.payload.receiver,
-                    amount: req.payload.destinationAmount,
+                    account: receiver,
+                    amount: ipr.amount,
                     data: ILP.PSK.createDetails({
-                      publicHeaders: { 'Payment-Id': req.params.paymentId },
+                      publicHeaders: { 'Payment-Id': ipr.publicHeaders['payment-id'] },
                       headers: {
-                        'Content-Length': JSON.stringify(req.payload.memo).length,
+                        'Content-Length': JSON.stringify(req.payload.memo ? req.payload.memo : '').length,
                         'Content-Type': 'application/json',
                         'Sender-Identifier': req.payload.sourceIdentifier
                       },
                       disableEncryption: true,
-                      data: Buffer.from(JSON.stringify(req.payload.memo))
+                      data: Buffer.from(JSON.stringify(req.payload.memo ? req.payload.memo : ''))
                     })
                   }).toString('base64')
                 },
-                'amount': Number(req.payload.destinationAmount)
+                'amount': Number(ipr.amount)
               }
             ],
             'execution_condition': 'ni:///sha-256;47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU?fpt=preimage-sha-256&cost=0',
@@ -302,7 +303,7 @@ server.route([
             }).code(400)
           }
           request({
-            url: 'http://localhost:8014/ledger/transfers/' + req.params.paymentId + '/fulfillment',
+            url: 'http://localhost:8014/ledger/transfers/' + ipr.publicHeaders['payment-id'] + '/fulfillment',
             method: 'PUT',
             body: 'oAKAAA',
             headers: { 'Content-type': 'text/plain' }
@@ -317,11 +318,11 @@ server.route([
             }
 
             request({
-              url: 'http://localhost:8010/receivers/' + response.account + '/payments/' + req.params.paymentId ,
+              url: 'http://localhost:8010/receivers/' + req.payload.sourceAccount.split('/').pop() + '/payments/' + ipr.publicHeaders['payment-id'] ,
               method: 'PUT',
               json: {
-                paymentId: req.params.paymentId,
-                destinationAmount: req.payload.destinationAmount,
+                paymentId: ipr.publicHeaders['payment-id'],
+                destinationAmount: ipr.amount,
                 status: 'executed'
               },
               headers: {
@@ -330,14 +331,8 @@ server.route([
             }, function (error, message, response) {})
 
             return reply({
-              'id': req.params.paymentId,
-              'address': req.payload.address,
-              'destinationAmount': req.payload.destinationAmount,
-              'sourceAmount': req.payload.sourceAmount,
-              'sourceAccount': req.payload.sourceAccount,
-              'expiresAt': req.payload.expiresAt,
-              'additionalHeaders': 'asdf98zxcvlknannasdpfi09qwoijasdfk09xcv009as7zxcv',
-              'condition': req.payload.condition,
+              'paymentId': ipr.publicHeaders['payment-id'],
+              'connectorAccount': req.payload.connectorAccount,
               'fulfillment': 'oCKAINnWMdlw8Vpvz8jMBdIOguJls1lMo6kBT6ERSrh11MDK',
               'status': 'executed'
             })
@@ -348,12 +343,11 @@ server.route([
     config: {
       validate: {
         payload: joi.object({
-          'receiver': joi.string().required(),
           'sourceAccount': joi.string().required(),
-          'sourceAmount': joi.string().required(),
-          'destinationAmount': joi.string().required(),
-          'memo': joi.string().allow(''),
-          'sourceIdentifier': joi.string().required()
+          'sourceAmount': joi.number().required(),
+          'ipr': joi.string().required(),
+          'sourceExpiryDuration': joi.number().required(),
+          'connectorAccount': joi.string().required()
         }),
         failAction: directoryFailActionHandler
       }
@@ -422,7 +416,15 @@ server.route([
           amount: req.payload.amount.amount,
           currency: req.payload.amount.currency
         }
-        response.ipr = 'c29tZSBpcHIgaGVyZQ=='
+        response.sourceExpiryDuration = 10
+        response.ipr = (ILP.IPR.createIPR({
+          receiverSecret: Buffer.from('', 'base64'),
+          destinationAmount: req.payload.amount.amount,
+          destinationAccount: req.payload.payee.account,
+          publicHeaders: { 'Payment-Id': req.payload.paymentId },
+          disableEncryption: true,
+          expiresAt: new Date((new Date()).getTime() + 10 * 60000)
+        })).toString('base64')
         reply(response)
       })
     },
