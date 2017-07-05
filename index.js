@@ -110,10 +110,10 @@ server.route([
     }
   },
   {
-    path: '/spspclient/query',
+    path: '/spspclient/invoices',
     method: 'get',
     handler: (req, reply) => {
-      var receiver = req.query.receiver.split('/').pop()
+      var receiver = req.query.invoiceUrl.split('/').pop()
       if (receiver === 'fail') {
         return reply({
           'id': 'Error',
@@ -122,7 +122,7 @@ server.route([
         })
       }
       request({
-        url: req.query.receiver,
+        url: req.query.invoiceUrl,
         method: 'GET',
         json: true,
         headers: {
@@ -139,20 +139,37 @@ server.route([
         }
         return reply(response)
       })
-
-      // return reply({
-      //   'currencyCode': 'USD',
-      //   'imageUrl': 'http://mediaserver.com/demo/images/' + receiver + '-profile-pic.jpg',
-      //   'currencySymbol': '$',
-      //   'name': receiver,
-      //   'type': 'payee',
-      //   'address': 'levelone.dfsp2.' + receiver,
-      //   'amount': '13',
-      //   'firstName': 'First Name',
-      //   'lastName': 'Last Name',
-      //   'merchantIdentifier': 'mock_123456789',
-      //   'account': 'http://localhost:8014/accounts/' + receiver
-      // })
+    }
+  },
+  {
+    path: '/spspclient/receivers/{receiver}',
+    method: 'get',
+    handler: (req, reply) => {
+      if (req.params.receiver === 'fail') {
+        return reply({
+          'id': 'Error',
+          'message': 'Error getting receiver details, receiver responded with: undefined getaddrinfo ENOTFOUND ' + req.params.receiver + ' ' + req.params.receiver + ':80',
+          'debug': {}
+        })
+      }
+      request({
+        url: 'http://localhost:8010/receivers/' + req.params.receiver,
+        method: 'GET',
+        json: true,
+        headers: {
+          Authorization: 'Basic ' + new Buffer(config.cluster + ':' + config.cluster).toString('base64')
+        }
+      }, function (error, message, response) {
+        if (message.statusCode >= 400) {
+          error = response.message
+        }
+        if (error) {
+          return reply({
+            'message': error
+          }).code(400)
+        }
+        return reply(response)
+      })
     }
   },
   {
@@ -224,7 +241,7 @@ server.route([
     }
   },
   {
-    path: '/spspclient/payments/{paymentId}',
+    path: '/spspclient/payments',
     method: 'put',
     handler: (req, reply) => {
       var ipr = ILP.PSK.parsePacketAndDetails({ packet: ILP.IPR.decodeIPR(Buffer.from(req.payload.ipr, 'base64')).packet })
