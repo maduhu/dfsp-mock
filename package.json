@@ -1,6 +1,6 @@
 {
   "name": "@leveloneproject/dfsp-mock",
-  "version": "1.0.0-quotes.1",
+  "version": "1.0.0-quotes.2",
   "description": "DFPS mock",
   "main": "index.js",
   "scripts": {
