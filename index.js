@@ -39,7 +39,15 @@ server.route([
     method: 'get',
     handler: (request, reply) => {
       return reply({
-        spspReceiver: 'http://localhost:8010'
+        directory_details: [
+          {
+            name: "The First DFSP",
+            providerUrl: "http://localhost:8010",
+            shortName: "dsfp1",
+            preferred: "true",
+            registered: "true"
+          }
+        ]
       })
     },
     config: {
