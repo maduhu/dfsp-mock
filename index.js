@@ -100,18 +100,21 @@ server.route([
     }
   },
   {
-    path: '/user-registration/users',
+    path: '/resources',
     method: 'post',
     handler: (request, reply) => {
       return reply({
-        url: request.payload.url,
-        number: '' + (Math.floor(Math.random() * 90000000) + 10000000)
+        "name": "The First DFSP",
+        "providerUrl": "http://localhost:8010",
+        "shortName": "dsfp1",
+        "preferred": "true",
+        "registered": "true"
       })
     },
     config: {
       validate: {
         payload: joi.object().keys({
-          url: joi.string().uri().required()
+          identifier: joi.string().required()
         }),
         failAction: directoryFailActionHandler
       }
