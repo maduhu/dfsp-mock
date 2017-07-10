@@ -113,7 +113,8 @@ server.route([
     config: {
       validate: {
         payload: joi.object().keys({
-          identifier: joi.string().required()
+          identifier: joi.string().required(),
+          preferred: joi.boolean()
         }),
         failAction: directoryFailActionHandler
       }
