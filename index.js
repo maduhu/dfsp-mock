@@ -41,11 +41,11 @@ server.route([
       return reply({
         directory_details: [
           {
-            name: "The First DFSP",
-            providerUrl: "http://localhost:8010",
-            shortName: "dsfp1",
-            preferred: "true",
-            registered: "true"
+            name: 'The First DFSP',
+            providerUrl: 'http://localhost:8010',
+            shortName: 'dsfp1',
+            preferred: 'true',
+            registered: 'true'
           }
         ]
       })
@@ -53,8 +53,7 @@ server.route([
     config: {
       validate: {
         query: joi.object().keys({
-          identifier: joi.string().required(),
-          identifierType: joi.string().required()
+          identifier: joi.string().required()
         }),
         failAction: (request, reply, source, error) => {
           return reply({
@@ -104,11 +103,11 @@ server.route([
     method: 'post',
     handler: (request, reply) => {
       return reply({
-        "name": "The First DFSP",
-        "providerUrl": "http://localhost:8010",
-        "shortName": "dsfp1",
-        "preferred": "true",
-        "registered": "true"
+        'name': 'The First DFSP',
+        'providerUrl': 'http://localhost:8010',
+        'shortName': 'dsfp1',
+        'preferred': 'true',
+        'registered': 'true'
       })
     },
     config: {
@@ -346,7 +345,7 @@ server.route([
             }
 
             request({
-              url: 'http://localhost:8010/receivers/' + req.payload.sourceAccount.split('/').pop() + '/payments/' + ipr.publicHeaders['payment-id'] ,
+              url: 'http://localhost:8010/receivers/' + req.payload.sourceAccount.split('/').pop() + '/payments/' + ipr.publicHeaders['payment-id'],
               method: 'PUT',
               json: {
                 paymentId: ipr.publicHeaders['payment-id'],
