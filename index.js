@@ -37,17 +37,40 @@ server.route([
   {
     path: '/resources',
     method: 'get',
-    handler: (request, reply) => {
-      return reply({
-        directory_details: [
-          {
-            name: 'The First DFSP',
-            providerUrl: 'http://localhost:8010',
-            shortName: 'dsfp1',
-            preferred: 'true',
-            registered: 'true'
-          }
-        ]
+    handler: (req, reply) => {
+      request({
+        url: 'http://localhost:8010/receivers/' + req.query.identifier.split(':').pop(),
+        method: 'GET',
+        json: true,
+        headers: {
+          Authorization: 'Basic ' + new Buffer(config.cluster + ':' + config.cluster).toString('base64')
+        }
+      }, function (error, message, response) {
+        if (message.statusCode >= 400) {
+          error = response.message
+        }
+        if (error) {
+          return reply({
+            'message': error
+          }).code(400)
+        }
+        return reply({
+          dfsp_details: message.body,
+          fraud_details: {
+            id: 'dc42027a-527d-4fdc-900b-be91af7e7e2c',
+            createdDate: '2017-07-10T10:00:35.826Z',
+            score: 83
+          },
+          directory_details: [
+            {
+              name: 'The First DFSP',
+              providerUrl: 'http://localhost:8010',
+              shortName: 'dsfp1',
+              preferred: 'true',
+              registered: 'true'
+            }
+          ]
+        })
       })
     },
     config: {
