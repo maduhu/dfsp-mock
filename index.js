@@ -415,7 +415,7 @@ server.route([
           Authorization: 'Basic ' + new Buffer(config.cluster + ':' + config.cluster).toString('base64')
         },
         json: {
-          invoiceUrl: 'http://localhost:8010/receivers/invoices/' + req.payload.invoiceId,
+          invoiceUrl: 'http://localhost:8010/invoices/' + req.payload.invoiceId,
           memo: req.payload.memo,
           senderIdentifier: req.payload.senderIdentifier
         }
