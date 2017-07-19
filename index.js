@@ -369,7 +369,7 @@ server.route([
             }
 
             request({
-              url: 'http://localhost:8010/receivers/' + req.payload.sourceAccount.split('/').pop() + '/payments/' + ipr.publicHeaders['payment-id'],
+              url: 'http://localhost:8010/receivers/' + ipr.publicHeaders['payment-id'],
               method: 'PUT',
               json: {
                 paymentId: ipr.publicHeaders['payment-id'],
