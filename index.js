@@ -46,14 +46,6 @@ server.route([
           Authorization: 'Basic ' + new Buffer(config.cluster + ':' + config.cluster).toString('base64')
         }
       }, function (error, message, response) {
-        if (message.statusCode >= 400) {
-          error = response.message
-        }
-        if (error) {
-          return reply({
-            'message': error
-          }).code(400)
-        }
         return reply({
           dfsp_details: message.body,
           fraud_details: {
@@ -67,7 +59,7 @@ server.route([
               providerUrl: 'http://localhost:8010',
               shortName: 'dsfp1',
               preferred: 'true',
-              registered: 'true'
+              registered: message.statusCode < 400
             }
           ]
         })
