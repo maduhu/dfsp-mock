@@ -488,7 +488,6 @@ server.route([
             identifierType: joi.string().required().example('eur')
           }).required(),
           payee: joi.object().keys({
-            url: joi.string().required().example('http://localhost:8020/quotes'),
             account: joi.string().required().example('http://host/ledger/account/alice'),
             identifier: joi.string().required().example('30754016'),
             identifierType: joi.string().required().example('eur')
