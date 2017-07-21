@@ -305,7 +305,7 @@ server.route([
             'debits': [
               {
                 'account': req.payload.sourceAccount,
-                'amount': Number(ipr.amount),
+                'amount': Number(ipr.amount) / 100,
                 'memo': {},
                 'authorized': true
               }
@@ -316,7 +316,7 @@ server.route([
                 'memo': {
                   ilp: Packet.serializeIlpPayment({
                     account: receiver,
-                    amount: ipr.amount,
+                    amount: '' + (ipr.amount / 100),
                     data: ILP.PSK.createDetails({
                       publicHeaders: { 'Payment-Id': ipr.publicHeaders['payment-id'] },
                       headers: {
@@ -329,7 +329,7 @@ server.route([
                     })
                   }).toString('base64')
                 },
-                'amount': Number(ipr.amount)
+                'amount': Number(ipr.amount) / 100
               }
             ],
             'execution_condition': 'ni:///sha-256;47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU?fpt=preimage-sha-256&cost=0',
@@ -365,7 +365,7 @@ server.route([
               method: 'PUT',
               json: {
                 paymentId: ipr.publicHeaders['payment-id'],
-                destinationAmount: ipr.amount,
+                destinationAmount: '' + Number(ipr.amount) / 100,
                 status: 'executed'
               },
               headers: {
@@ -462,7 +462,7 @@ server.route([
         response.sourceExpiryDuration = 10
         response.ipr = (ILP.IPR.createIPR({
           receiverSecret: Buffer.from('', 'base64'),
-          destinationAmount: req.payload.amount.amount,
+          destinationAmount: (Number(req.payload.amount.amount) * 100).toFixed(0),
           destinationAccount: req.payload.payee.account,
           publicHeaders: { 'Payment-Id': req.payload.paymentId },
           disableEncryption: true,
