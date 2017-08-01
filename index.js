@@ -58,7 +58,7 @@ server.route([
               name: 'The First DFSP',
               providerUrl: 'http://localhost:8010',
               shortName: 'dsfp1',
-              preferred: 'true',
+              primary: 'true',
               registered: message.statusCode < 400
             }
           ]
@@ -121,7 +121,7 @@ server.route([
         'name': 'The First DFSP',
         'providerUrl': 'http://localhost:8010',
         'shortName': 'dsfp1',
-        'preferred': 'true',
+        'primary': 'true',
         'registered': 'true'
       })
     },
@@ -129,7 +129,7 @@ server.route([
       validate: {
         payload: joi.object().keys({
           identifier: joi.string().required(),
-          preferred: joi.boolean()
+          primary: joi.boolean()
         }),
         failAction: directoryFailActionHandler
       }
