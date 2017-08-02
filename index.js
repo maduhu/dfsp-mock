@@ -327,7 +327,8 @@ server.route([
                       disableEncryption: true,
                       data: Buffer.from(JSON.stringify(req.payload.memo ? req.payload.memo : ''))
                     })
-                  }).toString('base64')
+                  }).toString('base64'),
+                  quote: JSON.parse(ipr.data.toString())
                 },
                 'amount': Number(ipr.amount) / 100
               }
@@ -466,7 +467,8 @@ server.route([
           destinationAccount: req.payload.payee.account,
           publicHeaders: { 'Payment-Id': req.payload.paymentId },
           disableEncryption: true,
-          expiresAt: new Date((new Date()).getTime() + 10 * 60000)
+          expiresAt: new Date((new Date()).getTime() + 10 * 60000),
+          data: Buffer.from(JSON.stringify(response.data))
         })).toString('base64')
         reply(response)
       })
