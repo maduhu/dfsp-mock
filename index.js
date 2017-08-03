@@ -93,7 +93,7 @@ server.route([
         'result': {
           'name': 'Chris Griffin',
           'account': 'http://receivingdfsp.com/' + request.payload.params.userURI.split(':').pop(),
-          'currency': 'USD',
+          'currency': 'TZS',
           // Should be implemented by modusBox to return the DFSP address too
           'dfsp': 'http://localhost:8010'
         }
@@ -491,11 +491,11 @@ server.route([
           amountType: joi.string().required().valid(['SEND', 'RECEIVE']).example('SEND'),
           amount: joi.object().keys({
             amount: joi.string().example('10'),
-            currency: joi.string().example('USD')
+            currency: joi.string().example('TZS')
           }).required(),
           fees: joi.object().keys({
             amount: joi.string().example('0.25'),
-            currency: joi.string().example('USD')
+            currency: joi.string().example('TZS')
           }).optional()
         }).unknown().required()
       }
