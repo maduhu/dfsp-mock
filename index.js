@@ -55,9 +55,16 @@ server.route([
           },
           directory_details: [
             {
-              name: 'The First DFSP',
+              name: 'The first DFSP',
               providerUrl: 'http://localhost:8010',
               shortName: 'dsfp1',
+              primary: 'false',
+              registered: message.statusCode < 400
+            },
+            {
+              name: 'The second DFSP',
+              providerUrl: 'http://localhost:8010',
+              shortName: 'dsfp2',
               primary: 'true',
               registered: message.statusCode < 400
             }
