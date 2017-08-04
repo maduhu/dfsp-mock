@@ -58,14 +58,14 @@ server.route([
               name: 'The first DFSP',
               providerUrl: 'http://localhost:8010',
               shortName: 'dsfp1',
-              primary: 'false',
+              primary: false,
               registered: message.statusCode < 400
             },
             {
               name: 'The second DFSP',
               providerUrl: 'http://localhost:8010',
               shortName: 'dsfp2',
-              primary: 'true',
+              primary: true,
               registered: message.statusCode < 400
             }
           ]
