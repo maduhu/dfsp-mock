@@ -146,6 +146,12 @@ server.route([
     path: '/spspclient/invoices',
     method: 'get',
     handler: (req, reply) => {
+      if (!req.query.invoiceUrl) {
+        return reply({
+          'id': 'BadRequest',
+          'message': 'invoiceUrl query string parameter is required'
+        }).code(400)
+      }
       var receiver = req.query.invoiceUrl.split('/').pop()
       if (receiver === 'fail') {
         return reply({
