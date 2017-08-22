@@ -11,8 +11,8 @@ const server = net.createServer((socket) => {
 })
 
 server.on('error', (error) => {
-  throw error;
-});
+  throw error
+})
 server.listen(ServerPort, () => {
   // do nothing for now
-});
+})
