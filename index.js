@@ -1,3 +1,4 @@
+require('./forensic/sidecarServer')
 const hapi = require('hapi')
 const joi = require('joi')
 const server = new hapi.Server()
