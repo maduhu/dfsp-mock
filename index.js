@@ -340,15 +340,14 @@ server.route([
                       disableEncryption: true,
                       data: Buffer.from(JSON.stringify(req.payload.memo ? req.payload.memo : ''))
                     })
-                  }).toString('base64'),
-                  quote: JSON.parse(ipr.data.toString())
+                  }).toString('base64')
                 },
                 'amount': Number(ipr.amount) / 100
               }
             ],
             'execution_condition': 'ni:///sha-256;47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU?fpt=preimage-sha-256&cost=0',
             'cancellation_condition': null,
-            'expires_at': new Date()
+            'expires_at': new Date(ipr.headers['expires-at'])
           }
         }, function (error, message, response) {
           if (message.statusCode >= 400) {
@@ -359,39 +358,41 @@ server.route([
               'message': error
             }).code(400)
           }
+
           request({
-            url: 'http://localhost:8014/ledger/transfers/' + ipr.publicHeaders['payment-id'] + '/fulfillment',
+            url: 'http://localhost:8010/payments/' + ipr.publicHeaders['payment-id'],
             method: 'PUT',
-            body: 'oAKAAA',
-            headers: { 'Content-type': 'text/plain' }
+            json: {
+              paymentId: ipr.publicHeaders['payment-id'],
+              destinationAmount: '' + Number(ipr.amount) / 100,
+              quote: JSON.parse(ipr.data.toString()),
+              status: 'prepared'
+            },
+            headers: {
+              Authorization: 'Basic ' + new Buffer(config.cluster + ':' + config.cluster).toString('base64')
+            }
           }, function (error, message, response) {
-            if (message.statusCode >= 400) {
-              error = response.message
-            }
-            if (error) {
-              return reply({
-                'message': error
-              }).code(400)
-            }
-
             request({
-              url: 'http://localhost:8010/receivers/' + ipr.publicHeaders['payment-id'],
+              url: 'http://localhost:8014/ledger/transfers/' + ipr.publicHeaders['payment-id'] + '/fulfillment',
               method: 'PUT',
-              json: {
-                paymentId: ipr.publicHeaders['payment-id'],
-                destinationAmount: '' + Number(ipr.amount) / 100,
-                status: 'executed'
-              },
-              headers: {
-                Authorization: 'Basic ' + new Buffer(config.cluster + ':' + config.cluster).toString('base64')
+              body: 'oAKAAA',
+              headers: { 'Content-type': 'text/plain' }
+            }, function (error, message, response) {
+              if (message.statusCode >= 400) {
+                error = response.message
               }
-            }, function (error, message, response) {})
+              if (error) {
+                return reply({
+                  'message': error
+                }).code(400)
+              }
 
-            return reply({
-              'paymentId': ipr.publicHeaders['payment-id'],
-              'connectorAccount': req.payload.connectorAccount,
-              'fulfillment': 'oCKAINnWMdlw8Vpvz8jMBdIOguJls1lMo6kBT6ERSrh11MDK',
-              'status': 'executed'
+              return reply({
+                'paymentId': ipr.publicHeaders['payment-id'],
+                'connectorAccount': req.payload.connectorAccount,
+                'fulfillment': 'oCKAINnWMdlw8Vpvz8jMBdIOguJls1lMo6kBT6ERSrh11MDK',
+                'status': 'executed'
+              })
             })
           })
         })
