@@ -1,4 +1,4 @@
-require('./forensic/sidecarServer')
+const sidecarServer = require('./forensic/sidecarServer')
 const hapi = require('hapi')
 const joi = require('joi')
 const server = new hapi.Server()
@@ -531,6 +531,12 @@ module.exports = new Promise(function (resolve, reject) {
   return {
     stop: function () {
       return Promise.resolve(server.stop())
+        .then(() => {
+          return sidecarServer
+        })
+        .then((methods) => {
+          return methods.stop()
+        })
     }
   }
 })
