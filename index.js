@@ -366,7 +366,7 @@ server.route([
             json: {
               paymentId: ipr.publicHeaders['payment-id'],
               destinationAmount: '' + Number(ipr.amount) / 100,
-              data: JSON.parse(ipr.data.toString()),
+              data: ipr.data.toString(),
               status: 'prepared'
             },
             headers: {
